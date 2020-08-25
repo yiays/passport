@@ -1,6 +1,7 @@
 :root{
 	font-size: 16px;
 	color: #ddd;
+	text-align: center;
 }
 
 html,body{
@@ -12,8 +13,71 @@ body{
 	background: #353535;
 }
 
+header{
+	position: relative;
+	z-index: 1;
+	padding: 1rem 0;
+}
+header h1{
+	margin: .42em;
+}
+.header-bg{
+	background: #000;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+	z-index: -1;
+}
+.header-bg img{
+	width: auto;
+	height: 100%;
+	margin-left: -0.5em;
+	filter: blur(5px);
+}
+.header-bg>.header-bg-pan{
+	position: relative;
+	width: auto;
+	height: 100%;
+	white-space: nowrap;
+	animation: 15s linear header-bg-pan infinite;
+}
+@keyframes header-bg-pan{
+	0% {
+		left: 0;
+		filter: brightness(0);
+	}
+	10%{
+		filter: brightness(0.5);
+	}
+	90% {
+		filter: brightness(0.5);
+	}
+	99% {
+		left: calc(100vw - 216rem);
+		filter: brightness(0);
+	}
+	100%{
+		left: 0;
+		filter: brightness(0);
+	}
+}
+
+footer{
+	background: #111;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 0.5em;
+}
+
 .wrapper{
 	margin: 1em 15vw;
+	padding-bottom: 2rem;
+	text-align: left;
 }
 
 .icons{
@@ -24,7 +88,10 @@ body{
 }
 .icons>img{
 	width: auto;
-	height: 4rem;
-	padding: 1rem;
+	height: 8rem;
 	filter: grayscale(1);
+}
+.icons-mini>img{
+	height: 3rem;
+	padding: 0.5rem;
 }
