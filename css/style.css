@@ -7,9 +7,51 @@
 html,body{
 	margin: 0;
 	padding: 0;
+	height: 100%;
 }
 
+a{
+	color: #ccf;
+}
+a:hover{
+	color: #eef;
+}
+
+/*
+	General Tweaks
+*/
+h1:first-child,h2:first-child,h3:first-child,h4:first-child,h5:first-child,h6:first-child{
+	margin-top: 0;
+}
+
+/*
+	Form Tweaks
+*/
+button,input{
+	background-color: #ddd;
+	color: #111;
+	padding: 0.25em;
+	margin-bottom: 0.5em;
+	border: 1px solid #111;
+}
+button:hover,input:hover{
+	background-color: #fff;
+}
+input:focus{
+	background-color: #eee;
+}
+input:not([type=submit]){
+	width: 100%;
+	box-sizing: border-box;
+}
+
+/*
+	Page Style
+*/
+
 body{
+	display: flex;
+	flex-direction: column;
 	background: #353535;
 }
 
@@ -17,6 +59,7 @@ header{
 	position: relative;
 	z-index: 1;
 	padding: 1rem 0;
+	flex-shrink: 0;
 }
 header h1{
 	margin: .42em;
@@ -67,14 +110,12 @@ header h1{
 
 footer{
 	background: #111;
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
+	flex-shrink: 0;
 	padding: 0.5em;
 }
 
 .wrapper{
+	flex: 1 0 auto;
 	margin: 1em 15vw;
 	padding-bottom: 2rem;
 	text-align: left;
@@ -94,4 +135,68 @@ footer{
 .icons-mini>img{
 	height: 3rem;
 	padding: 0.5rem;
+}
+
+.tiles {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+.tile{
+	display: inline-block;
+	position: relative;
+	width: 20em;
+	height: 20em;
+	margin: 1em;
+}
+.tile>.tile-cover, .tile>.tile-content{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	box-shadow: rgba(0,0,0,0.25) 0.1em 0.1em 0.2em;
+	transition: 200ms transform, 200ms visibility, 200ms z-index;
+}
+
+.tile>.tile-cover{
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	color: #ddd;
+	align-items: baseline;
+	padding: 1em;
+	filter: brightness(1);
+	transition: 200ms filter, 200ms transform, 200ms visibility, 200ms z-index;
+	visibility: visible;
+	z-index: 1;
+	cursor: pointer;
+	transform: rotateY(0deg);
+}
+.tile>.tile-cover h2{
+	margin: 0;
+}
+.tile>.tile-cover:hover{
+	filter: brightness(1.2);
+}
+
+.tile>.tile-content{
+	background-color: #252525;
+	padding: 1em;
+	overflow: hidden;
+	transform: rotateY(180deg);
+	visibility: hidden;
+	z-index: 0;
+}
+
+.tile.active>.tile-cover{
+	visibility: hidden;
+	z-index: 0;
+	transform: rotateY(180deg);
+}
+.tile.active>.tile-content{
+	visibility: visible;
+	z-index: 1;
+	transform: rotateY(360deg);
 }
