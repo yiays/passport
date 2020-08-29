@@ -5,6 +5,12 @@ $('.tile-cover').on('click', function(e){
 		e.focus();
 	}, 100, $(this).parent().find('input[autofocus]').get(0));
 });
+
 $('.tile-content button[data-cancel]').on('click', function(e){
 	$(this).parent().parent().parent().removeClass('active');
 });
+
+$('a[data-cancel]').on('click', function(e){
+	e.preventDefault();
+	return false;
+})

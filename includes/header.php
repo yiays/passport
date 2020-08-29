@@ -7,14 +7,14 @@
 	<meta name="description" content="Manage your passport account for Yiays.com projects like the blog, MemeDB and PukekoHost.">
 	
 	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
-	<link rel="stylesheet" href="/css/style.css?v=56">
+	<link rel="stylesheet" href="/css/style.css?v=64">
 </head>
 <body>
 	<header>
 		<div class="icons">
 			<img src="/img/icons/passport.svg" alt="Logo for Passport" title="Passport">
 		</div>
-		<h1>Passport</h1>
+		<a href="/"><h1>Passport</h1></a>
 		<p style="font-size: 1.1em;"><b>Passport gives you one account for all projects on Yiays.com!</b></p>
 		<div class="icons icons-mini">
 			<img src="/img/icons/yiays.svg" alt="Logo for Yiays.com" title="Yiays.com">
@@ -24,7 +24,6 @@
 			<img src="/img/icons/pukeko.svg" alt="Logo for PukekoHost" title="PukekoHost">
 			<img src="/img/icons/kahoot.svg" alt="Logo for KahootDiscord" title="KahootDiscord">
 		</div>
-		<p><i>Get your passport with Discord or email today!</i></p>
 		<div class="header-bg">
 			<div class="header-bg-pan">
 				<img src="/img/previews/yiays.jpg" alt="Yiays.com Preview">

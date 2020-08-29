@@ -61,6 +61,13 @@ header{
 	padding: 1rem 0;
 	flex-shrink: 0;
 }
+header a{
+	text-decoration: none;
+	color: #ddd;
+}
+header a:hover{
+	color: #fff;
+}
 header h1{
 	margin: .42em;
 }
@@ -99,7 +106,7 @@ header h1{
 		filter: brightness(0.5);
 	}
 	99% {
-		left: calc(100vw - 216rem);
+		left: calc(100vw - (580px * 5));
 		filter: brightness(0);
 	}
 	100%{
@@ -116,9 +123,14 @@ footer{
 
 .wrapper{
 	flex: 1 0 auto;
-	margin: 1em 15vw;
+	margin: 1em 10vw;
 	padding-bottom: 2rem;
 	text-align: left;
+}
+@media screen and (max-width:80rem){
+	.wrapper{
+		margin: 1em 5vw;
+	}
 }
 
 .icons{
@@ -150,6 +162,11 @@ footer{
 	height: 20em;
 	margin: 1em;
 }
+@media screen and (max-width: 40em){
+	.tile{
+		margin: 1em 0;
+	}
+}
 .tile>.tile-cover, .tile>.tile-content{
 	position: absolute;
 	top: 0;
@@ -170,6 +187,7 @@ footer{
 	filter: brightness(1);
 	transition: 200ms filter, 200ms transform, 200ms visibility, 200ms z-index;
 	visibility: visible;
+	text-decoration: none;
 	z-index: 1;
 	cursor: pointer;
 	transform: rotateY(0deg);

@@ -1,8 +1,11 @@
 <?php
 session_start();
+
 require_once('../passport.conn.php'); // $conn: DB Connection Object
 require_once('../passport.discord.php'); // DISCORD_CLIENT_ID: string, DISCORD_CLIENT_SECRET: string
 require_once('../passport.google.php'); // GOOGLE_CLIENT_ID: string, GOOGLE_CLIENT_SECRET: string
+
+require_once('includes/util.php');
 
 $services = [];
 $services['discord'] = new Service("Discord", "/img/icons/discord.svg", "#7289DA", "https://discordapp.com/api", "../passport.discord.php");
@@ -17,8 +20,7 @@ class User {
 	/*
 	public int $id;
 	public string $username;
-	public DiscordUser $discord;
-	public GoogleUser $google;
+	public array $linked_services;
 	public string $pfp;
 	public Email $email;
 	public bool $admin;
@@ -26,8 +28,7 @@ class User {
 	*/
 	public $id;
 	public $username;
-	public $discord;
-	public $google;
+	public $linked_services;
 	public $pfp;
 	public $email;
 	public $admin;
@@ -48,23 +49,38 @@ class User {
 				$this->admin = $row['Admin'];
 				$this->banned = $row['Banned'];
 				
-				if(!is_null($row['DiscordToken'])){
-					$this->discord = new DiscordUser($id, $row['DiscordToken']);
-					if(!$this->discord->online){
-						if(strlen($row['DiscordUsername']) > 5){
-							$discordusername = substr($row['DiscordUsername'], 0, strlen($row['DiscordUsername'])-5);
-							$discorddiscrim  = intval(substr($row['DiscordUsername'], strlen($row['DiscordUsername'])-4));
-							$this->discord->offlinesetup($discordusername, $discorddiscrim);
-						}else{
-							$this->discord->offlinesetup('Unknown', '0000');
+				$result = $conn->query("SELECT * FROM platform WHERE UserId = $id");
+				if($result){
+					while($row = $result->fetch_assoc()){
+						// Create specialized object depending on platform
+						switch($row['Platform']){
+							case 'discord':
+								$link = new DiscordUser();
+							break;
+							case 'google':
+								$link = new GoogleUser();
+							break;
+							default:
+								$link = new OauthUser();
 						}
+						
+						$link->id = $row['Id'];
+						$link->name = $row['Name'];
+						$link->profileurl = $row['ProfileUrl'];
+						$link->email = $row['Email'];
+						$link->token = $row['Token'];
+						
+						// Use token to fetch additional information
+						$link->get();
+						
+						$this->linked_services[$row['Platform']] = $link;
 					}
-				}
-				
-				if(!is_null($row['GoogleToken'])){
-					$this->google = new GoogleUser($row['GoogleToken']);
+				}else{
+					//error
 				}
 			}
+		}else{
+			//error
 		}
 	}
 }
@@ -72,57 +88,46 @@ class User {
 class OauthUser {
 	/*
 	public int $id;
+	public string $name;
+	public string $profileurl;
+	public string $email;
 	public string $token;
-	public Service $service;
 	*/
 	public $id;
+	public $name;
+	public $profileurl;
+	public $email;
 	public $token;
-	public $service;
 	
 	//public bool $online = false;
 	public $online = false;
+	
+	function get(){
+		$online = true;
+	}
 }
 
 class DiscordUser extends OauthUser {
 	/*
 	public string $username;
 	public string $discriminator;
-	public string $email;
-	public string $pfp;
 	*/
 	public $username;
 	public $discriminator;
-	public $email;
-	public $pfp;
 	
-	function __construct($passportid, $token){
-		global $services;
-		$this->service = $services['discord'];
-		
-		//$online = true;
+	function get(){
+		//TODO
 	}
 	
-	function offlinesetup($username, $discriminator){
-		$this->username = $username;
-		$this->discriminator = $discriminator;
+	function offlinesetup(){
+		$this->username = substr($this->name, 0, strpos($this->name, '#'));
+		$this->discriminator = substr($this->name, strlen($this->name) - 4);
 	}
 }
 
 class GoogleUser extends OauthUser {
-	/*
-	public string $name;
-	public string $email;
-	public string $pfp;
-	*/
-	public $name;
-	public $email;
-	public $pfp;
-	
-	function __construct($token){
-		global $services;
-		$this->service = $services['google'];
-		
-		//$online = true;
+	function get(){
+		//TODO
 	}
 }
 
