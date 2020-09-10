@@ -1,8 +1,11 @@
 <?php
 session_start();
+require_once('api/auth.php');
 if(!key_exists('user', $_SESSION) || !isset($_SESSION['user']) || is_null($_SESSION['user'])){
-	header("Location: /account/login");
-	die();
+	if(!autologin()){
+		header("Location: /account/login");
+		die();
+	}
 }
 require_once('includes/header.php');
 echo "<h1>Welcome, {$_SESSION['user']['Username']}.</h1>";

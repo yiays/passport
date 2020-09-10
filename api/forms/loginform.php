@@ -1,6 +1,7 @@
 <?php
 require_once('../passport.conn.php');
 require_once('models/forms.php');
+require_once('api/auth.php');
 
 //Create form
 $loginform = new Form('Access your passport', '/account/login', 'POST');
@@ -53,15 +54,7 @@ $loginform->rules []= function($data){
 };
 
 $loginform->submit = function(){
-    global $conn;
-    $result = $conn->query("SELECT * FROM user WHERE Username = \"$_SESSION[uid]\"");
-    if(!$result){
-        return "Failed to login! $conn->error";
-    }
-    if($result->num_rows != 1){
-        return "Unable to find account!";
-    }
-    $_SESSION['user'] = $result->fetch_assoc();
-    return true;
+    $token = generate_token($_SESSION['uid']);
+    return dologin($token);
 };
 ?>

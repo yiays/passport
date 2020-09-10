@@ -1,6 +1,7 @@
 <?php
 session_start();
-if(key_exists('user', $_SESSION) && isset($_SESSION['user']) && !is_null($_SESSION['user'])){
+require_once('api/auth.php');
+if((key_exists('user', $_SESSION) && isset($_SESSION['user']) && !is_null($_SESSION['user'])) || autologin()){
 	header("Location: /account");
 	die();
 }
@@ -10,7 +11,7 @@ if(isset($_POST['username'])){
 	$result = $loginform->validate($_POST);
 	if($result->passed){
 		$result = $loginform->submit($_POST);
-		if($result !== true){
+		if($result){
 			header("Location: /account");
 			die();
 		}else{

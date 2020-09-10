@@ -1,6 +1,7 @@
 <?php
 require_once('../passport.conn.php');
 require_once('models/forms.php');
+require_once('api/auth.php');
 
 //Create form
 $registerform = new Form('Create your passport', '/account/register', 'POST');
@@ -56,13 +57,13 @@ $registerform->submit = function($data){
         return "Failed to register new account! $conn->error";
     }
     
-    $result = $conn->query("SELECT * FROM user WHERE Id = (SELECT LAST_INSERT_ID())");
+    $result = $conn->query("SELECT LAST_INSERT_ID()");
     if(!$result){
         return "Failed to get new account data! $conn->error";
     }
-    $row = $result->fetch_assoc();
-    $_SESSION['uid'] = $row['Id'];
-    $_SESSION['user'] = $row;
-    return true;
+    
+    $row = $result->fetch_row();
+    $token = generate_token($row[0], "Unnamed device used for registration.");
+    return dologin($token);
 };
 ?>

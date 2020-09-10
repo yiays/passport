@@ -52,7 +52,7 @@ class Form{
 			if(!$result->passed) break;
 		}
 		
-		//Combine retults into one FormValidationResult
+		//Combine results into one FormValidationResult
 		$success = true;
 		$messages = [];
 		foreach($results as $result){
