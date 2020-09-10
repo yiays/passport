@@ -9,6 +9,8 @@ class Form{
 	public $method;
 	public $fields = [];
 	public $buttons = [];
+	public $rules = [];
+	public $submit = null;
 	
 	function __construct($title, $action='', $method='GET')
 	{
@@ -42,6 +44,13 @@ class Form{
 			}
 			if(!$match) $results []= $field->validate(null);
 		}
+
+		//Validate the entire form against rules
+		foreach($this->rules as $rule){
+			$result = $rule($data);
+			$results []= $result;
+			if(!$result->passed) break;
+		}
 		
 		//Combine retults into one FormValidationResult
 		$success = true;
@@ -54,6 +63,13 @@ class Form{
 		}
 		
 		return new FormValidationResult($success, implode('<br>', array_filter($messages)));
+	}
+	
+	function submit($data){
+		if(!is_null($this->submit))
+			return call_user_func($this->submit, $data);
+		else
+			return "To be implemented...";
 	}
 }
 class FormField{

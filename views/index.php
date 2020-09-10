@@ -3,8 +3,8 @@ require_once('models/passport.php');
 require('includes/header.php');
 require_once('includes/util.php');
 
-require_once('forms/loginform.php');
-require_once('forms/registerform.php');
+require_once('api/forms/loginform.php');
+require_once('api/forms/registerform.php');
 
 if($me->exists){
 	echo "

@@ -1,11 +1,21 @@
 <?php
+session_start();
+if(key_exists('user', $_SESSION) && isset($_SESSION['user']) && !is_null($_SESSION['user'])){
+	header("Location: /account");
+	die();
+}
 require_once('../passport.conn.php');
-require_once('forms/loginform.php');
+require_once('api/forms/loginform.php');
 if(isset($_POST['username'])){
 	$result = $loginform->validate($_POST);
 	if($result->passed){
-		header("Location: /account");
-		die();
+		$result = $loginform->submit($_POST);
+		if($result !== true){
+			header("Location: /account");
+			die();
+		}else{
+			die($result);
+		}
 	}else{
 		require_once('includes/header.php');
 		echo "<p style=\"color:red;\">$result->message</p>";
