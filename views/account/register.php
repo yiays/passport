@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('api/auth.php');
-if((key_exists('user', $_SESSION) && isset($_SESSION['user']) && !is_null($_SESSION['user'])) || autologin()){
+if((key_exists('user', $_SESSION) && isset($_SESSION['user']) && !is_null($_SESSION['user'])) || passport\autologin()){
 	header("Location: /account");
 	die();
 }

@@ -54,7 +54,7 @@ $loginform->rules []= function($data){
 };
 
 $loginform->submit = function(){
-    $token = generate_token($_SESSION['uid']);
-    return dologin($token);
+    $token = passport\generate_token($_SESSION['uid']);
+    return passport\dologin($token);
 };
 ?>

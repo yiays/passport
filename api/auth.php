@@ -1,8 +1,10 @@
 <?php
+namespace passport;
 require_once('../passport.conn.php');
 require_once('includes/util.php');
 
 class passportToken{
+	//TODO: switch to private variables with mysql-safe setters
 	public $token;
 	public $uid;
 	public $desc;
@@ -11,10 +13,12 @@ class passportToken{
 	
 	function __construct($token, $uid=null, $desc=null, $expiry=null)
 	{
-		$this->token = $token;
-		$this->uid = $uid;
-		$this->desc = (is_null($desc)?$this->generate_desc():$desc);
-		$this->expiry = (is_null($expiry)?$this->generate_expiry():$expiry);
+		global $conn;
+		
+		$this->token = $conn->escape_string($token);
+		$this->uid = intval($uid);
+		$this->desc = (is_null($desc)?$this->generate_desc():$conn->escape_string($desc));
+		$this->expiry = (is_null($expiry)?$this->generate_expiry():intval($expiry));
 	}
 	function generate_desc(){
 		ini_set('browscap', dirname(__DIR__).'/includes/lite_php_browscap.ini');
@@ -31,11 +35,10 @@ class passportToken{
 	function mysql_insert(){
 		global $conn;
 		
-		$desc = $conn->escape_string($this->desc);
 		$expiry = date('Y-m-d H:i:s', $this->expiry);
-		$result = $conn->query("INSERT INTO session(SessionId, UserId, Description, Expiry) VALUES(\"$this->token\", $this->uid, \"$desc\", \"$expiry\")");
+		$result = $conn->query("INSERT INTO session(SessionId, UserId, Description, Expiry) VALUES(\"$this->token\", $this->uid, \"$this->desc\", \"$expiry\")");
 		if(!$result){
-			throw new Exception("Failed to store token; $conn->error");
+			throw new \Exception("Failed to store token; $conn->error");
 		}else{
 			return $this;
 		}
@@ -43,15 +46,24 @@ class passportToken{
 	function mysql_update(){
 		global $conn;
 		
-		$desc = $conn->escape_string($this->desc);
 		$expiry = date('Y-m-d H:i:s', $this->expiry);
-		$result = $conn->query("UPDATE session SET Description = \"$desc\", Expiry = \"$expiry\"");
+		$result = $conn->query("UPDATE session SET Description = \"$this->desc\", Expiry = \"$expiry\"");
 		if(!$result){
-			throw new Exception("Failed to update stored token; $conn->error");
+			throw new \Exception("Failed to update stored token; $conn->error");
 			return null;
 		}else{
 			return $this;
 		}
+	}
+	function mysql_delete(){
+		global $conn;
+		
+		$result = $conn->query("DELETE FROM session WHERE SessionId = \"$this->token\"");
+		if(!$result){
+			throw new \Exception("Failed to remove stored token; $conn->error");
+			return false;
+		}
+		return true;
 	}
 	function cookie_store(){
 		setcookie('passportToken', $this->token, $this->expiry, '/', '.yiays.com', true, false);
@@ -61,11 +73,10 @@ class passportToken{
 	function fetch(){
 		global $conn;
 		
-		$tokenhash = $conn->escape_string($this->token);
-		$result = $conn->query("SELECT Description,Expiry,user.* FROM session LEFT JOIN user ON session.UserId = user.Id WHERE SessionId = \"$tokenhash\" AND Expiry > CURRENT_TIMESTAMP()");
+		$result = $conn->query("SELECT Description,Expiry,user.* FROM session LEFT JOIN user ON session.UserId = user.Id WHERE SessionId = \"$this->token\" AND Expiry > CURRENT_TIMESTAMP()");
 		
 		if(!$result){
-			throw new Exception("Failed to restore login data from token; $conn->error");
+			throw new \Exception("Failed to restore login data from token; $conn->error");
 			return false;
 		}
 		if($result->num_rows != 1) return false;
@@ -94,7 +105,7 @@ function verify_token($tokenhash){
 	$token = new passportToken($tokenhash);
 	$result = $token->fetch();
 	
-	//As a bonus for verifying the token, extend it's lifetime as well.
+	//As a bonus for verifying the token, extend its lifetime as well.
 	if($result){
 		$token->generate_expiry();
 		$token->mysql_update();
@@ -122,6 +133,18 @@ function autologin(){
 			dologin($token);
 			return true;
 		}
+	}
+	return false;
+}
+
+function logout(){
+	if(key_exists('passportToken', $_COOKIE) && isset($_COOKIE['passportToken']) && !is_null($_COOKIE['passportToken'])){
+		$token = new passportToken($_COOKIE['passportToken']);
+		$token->expiry = 0;
+		$token->mysql_delete();
+		$token->cookie_store();
+		session_destroy();
+		return true;
 	}
 	return false;
 }

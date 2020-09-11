@@ -63,7 +63,7 @@ $registerform->submit = function($data){
     }
     
     $row = $result->fetch_row();
-    $token = generate_token($row[0], "Unnamed device used for registration.");
-    return dologin($token);
+    $token = passport\generate_token($row[0], "Unnamed device used for registration.");
+    return passport\dologin($token);
 };
 ?>

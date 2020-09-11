@@ -1,8 +1,10 @@
 <?php
+use passport;
+
 session_start();
 require_once('api/auth.php');
 if(!key_exists('user', $_SESSION) || !isset($_SESSION['user']) || is_null($_SESSION['user'])){
-	if(!autologin()){
+	if(!passport\autologin()){
 		header("Location: /account/login");
 		die();
 	}
