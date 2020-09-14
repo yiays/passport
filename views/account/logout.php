@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once('api/auth.php');
 if(passport\logout()){
 	header('Location: /');

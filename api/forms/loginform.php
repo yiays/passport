@@ -3,6 +3,10 @@ require_once('../passport.conn.php');
 require_once('models/forms.php');
 require_once('api/auth.php');
 
+if(session_status() !== PHP_SESSION_ACTIVE){
+    session_start();
+}
+
 //Create form
 $loginform = new Form('Access your passport', '/account/login', 'POST');
 
@@ -54,7 +58,7 @@ $loginform->rules []= function($data){
 };
 
 $loginform->submit = function(){
-    $token = passport\generate_token($_SESSION['uid']);
-    return passport\dologin($token);
+    $authenticator = passport\create_token($_SESSION['uid']);
+    return passport\dologin($authenticator);
 };
 ?>

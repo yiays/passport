@@ -1,10 +1,12 @@
 <?php
-session_start();
 require_once('api/auth.php');
-if((key_exists('user', $_SESSION) && isset($_SESSION['user']) && !is_null($_SESSION['user'])) || passport\autologin()){
+
+$user = passport\autologin();
+if($user){
 	header("Location: /account");
 	die();
 }
+
 require_once('../passport.conn.php');
 require_once('api/forms/loginform.php');
 if(isset($_POST['username'])){

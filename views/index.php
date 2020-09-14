@@ -1,20 +1,19 @@
 <?php
+require_once('api/auth.php');
+
+$user = passport\autologin();
+if($user){
+	header("Location: /account");
+	die();
+}
+
 require_once('models/passport.php');
 require('includes/header.php');
 require_once('includes/util.php');
 
 require_once('api/forms/loginform.php');
 require_once('api/forms/registerform.php');
-
-if($me->exists){
-	echo "
-		<div class=\"panel\">
-			<div class=\"panel-header\">
-				<h2>Welcome, $me->username!</h2>
-			</div>
-		</div>
-	";
-}else{?>
+?>
 <div class="tiles">
 	<div class="tile">
 		<a href="/account/register" class="tile-cover" data-cancel style="background-color:#aaa;color:#222;">
@@ -36,24 +35,22 @@ if($me->exists){
 	</div>
 
 <?php
-	foreach($services as $servicename => $service){
-		$textcol = (lightness($service->colour) >= 0.7? '#222': '#ddd');
-		echo "
-		<div class=\"tile\">
-			<a class=\"tile-cover\" style=\"background-color:$service->colour;color: $textcol;\">
-				<i>Authenticate with $service->name</i>
-				<img src=\"$service->icon\" alt=\"$service->name's logo\" style=\"height:2em;width:auto;\">
-			</a>
-			<div class=\"tile-content\">
-				<h2>Login with $service->name</h2>
-				<p>Redirecting you to login with $service->name...</p>
-			</div>
+foreach($services as $servicename => $service){
+	$textcol = (lightness($service->theme_color) >= 0.7? '#222': '#ddd');
+	echo "
+	<div class=\"tile\">
+		<a class=\"tile-cover\" style=\"background-color:$service->theme_color;color: $textcol;\">
+			<i>Authenticate with $service->name</i>
+			<img src=\"$service->icon\" alt=\"$service->name's logo\" style=\"height:2em;width:auto;\">
+		</a>
+		<div class=\"tile-content\">
+			<h2>Login with $service->name</h2>
+			<p>Redirecting you to login with $service->name...</p>
 		</div>
-		";
-	}
-		
-	echo "</div>";
+	</div>
+	";
 }
+echo "</div>";
 
 require('includes/footer.php');
 ?>
