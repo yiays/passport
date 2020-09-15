@@ -80,15 +80,4 @@ function autologin(){
 	}
 	return false;
 }
-
-function logout(){
-	if(key_exists('passportToken', $_COOKIE) && isset($_COOKIE['passportToken']) && !is_null($_COOKIE['passportToken'])){
-		$authenticator = new Authenticator($_COOKIE['passportToken']);
-		$authenticator->user->session->expiry = 0;
-		$authenticator->user->session->cookie_store();
-		$authenticator->user->session->mysql_delete();
-		return true;
-	}
-	return false;
-}
 ?>

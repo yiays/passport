@@ -1,9 +1,8 @@
 <?php
 require_once('api/auth.php');
-if(passport\logout()){
-	header('Location: /');
-	die();
-}else{
-	die('Failed to log you out. Please try again later.');
-}
+
+$user = passport\autologin();
+if($user) $user->session->revoke();
+header('Location: /');
+die();
 ?>

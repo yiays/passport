@@ -18,7 +18,7 @@ echo '
 
 echo '
 	<h3>Active sessions</h3>
-	<p>Here\'s a list of active sessions associated with your account, the green dot indicates which one you are using right now, be sure to revoke any suspicious ones. <i>Inactive sessions are revoked after a week.</i></p>
+	<p>These sessions are associated with your account, the green dot indicates which one you are using right now, be sure to revoke any suspicious ones. <i>Inactive sessions are revoked after a week.</i></p>
 	<table width="100%">
 		<tr>
 			<th>Description</th><th>Last authorized</th><th>Actions</th>
@@ -70,7 +70,7 @@ if(count($user->services) > 0){
 	</div>';
 }
 echo '
-	<p>Some Yiays.com projects require a Discord account to function, logging in can be faster, and you can bring your existing username and profile picture with you.</p>';
+	<p><i>Some Yiays.com projects require a Discord account to function, you can also bring your existing username and profile picture with you.</i></p>';
 
 require_once('includes/footer.php');
 ?>

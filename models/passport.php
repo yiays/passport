@@ -148,6 +148,13 @@ class Session {
 		return time() + (7 * 24 * 60 * 60);
 	}
 	
+	// High level functions
+	function revoke(){
+		$this->expiry = 0;
+		$this->cookie_store();
+		$this->mysql_delete();
+	}
+	
 	// Functions for storing tokens
 	function mysql_insert(){
 		global $conn;
