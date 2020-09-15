@@ -73,4 +73,5 @@ echo '
 	<p><i>Some Yiays.com projects require a Discord account to function, you can also bring your existing username and profile picture with you.</i></p>';
 
 require_once('includes/footer.php');
+$conn->close();
 ?>

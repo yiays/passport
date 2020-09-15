@@ -1,9 +1,9 @@
 <?php
 namespace passport;
 
-require_once('../passport.conn.php');
-require_once('includes/util.php');
-require_once('models/passport.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.conn.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/includes/util.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
 
 class Authenticator{
 	// public User $user = null;
@@ -28,6 +28,7 @@ class Authenticator{
 		if($result->num_rows != 1) return false;
 		
 		$row = $result->fetch_assoc();
+		$this->user->session->uid = intval($row['Id']);
 		$this->user->session->desc = $row['Description'];
 		unset($row['Description']);
 		$this->user->session->expiry = strtotime($row['Expiry']);

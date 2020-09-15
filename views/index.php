@@ -7,7 +7,7 @@ if($user){
 	die();
 }
 
-require_once('models/passport.php');
+require_once('api/models/passport.php');
 require('includes/header.php');
 require_once('includes/util.php');
 
@@ -53,4 +53,5 @@ foreach($services as $servicename => $service){
 echo "</div>";
 
 require('includes/footer.php');
+$conn->close();
 ?>

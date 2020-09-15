@@ -31,4 +31,5 @@ if(isset($_POST['username'])){
 require_once('includes/header.php');
 echo $registerform;
 require_once('includes/footer.php');
+$conn->close();
 ?>

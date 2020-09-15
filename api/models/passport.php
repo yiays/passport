@@ -1,11 +1,11 @@
 <?php
 namespace passport;
 
-require_once('../passport.conn.php'); // $conn: DB Connection Object
-require_once('../passport.discord.php'); // DISCORD_CLIENT_ID: string, DISCORD_CLIENT_SECRET: string
-require_once('../passport.google.php'); // GOOGLE_CLIENT_ID: string, GOOGLE_CLIENT_SECRET: string
+require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.conn.php'); // $conn: DB Connection Object
+require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.discord.php'); // DISCORD_CLIENT_ID: string, DISCORD_CLIENT_SECRET: string
+require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.google.php'); // GOOGLE_CLIENT_ID: string, GOOGLE_CLIENT_SECRET: string
 
-require_once('includes/util.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/includes/util.php');
 
 $services = [];
 $services['discord'] = new Service("Discord", "/img/icons/discord.svg", "#7289DA", "https://discordapp.com/api", "../passport.discord.php");
@@ -32,9 +32,6 @@ class User {
 	public $email;
 	public $admin;
 	public $banned;
-	
-	//public bool $exists = false;
-	public $exists = false;
 	
 	function __construct($id)
 	{
@@ -82,7 +79,7 @@ class User {
 						$service = new GoogleUser();
 					break;
 					default:
-						$service = new OauthUser();
+						$service = new ServiceUser();
 						trigger_error("Unrecognized passport service: '$row[Platform]'", E_USER_WARNING);
 				}
 				
@@ -138,7 +135,7 @@ class Session {
 	}
 	
 	function generate_desc(){
-		ini_set('browscap', dirname(__DIR__).'/includes/lite_php_browscap.ini');
+		ini_set('browscap', $_SERVER['DOCUMENT_ROOT'].'/includes/lite_php_browscap.ini');
 		$browsernfo = getBrowser();
 		$ipnfo = json_decode(file_get_contents("http://ipinfo.io/$_SERVER[REMOTE_ADDR]/json"));
 		return "Unnamed $browsernfo[platform] device via $browsernfo[name] in $ipnfo->city.";
@@ -194,7 +191,7 @@ class Session {
 	}
 }
 
-class OauthUser {
+class ServiceUser {
 	/*
 	public int $id;
 	public string $name;
@@ -220,7 +217,7 @@ class OauthUser {
 	}
 }
 
-class DiscordUser extends OauthUser {
+class DiscordUser extends ServiceUser {
 	/*
 	public string $username;
 	public string $discriminator;
@@ -237,7 +234,7 @@ class DiscordUser extends OauthUser {
 	}
 }
 
-class GoogleUser extends OauthUser {
+class GoogleUser extends ServiceUser {
 	function get(){
 		//TODO
 	}

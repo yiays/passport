@@ -1,6 +1,6 @@
 <?php
 require_once('../passport.conn.php');
-require_once('models/forms.php');
+require_once('api/models/forms.php');
 require_once('api/auth.php');
 
 //Create form
