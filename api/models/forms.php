@@ -21,6 +21,13 @@ class Form{
 	
 	function __toString()
 	{
+		// Remove passwords first, so they're not printed.
+		foreach($this->fields as $field){
+			if($field->type == 'password'){
+				$field->clear();
+			}
+		}
+		
 		return "
 		<h2>$this->title</h2>
 		<form action=\"$this->action\" method=\"$this->method\">
@@ -136,6 +143,11 @@ class FormField{
 		return "
 		<label for=\"$this->id\">".ucfirst($this->name).":</label><br>
 		<input type=\"$this->type\" $this->_name $this->_id $this->_value $this->_required $this->_readonly $this->_placeholder $this->_autofocus $this->_minlength $this->_maxlength $this->extra><br>";
+	}
+	
+	function clear(){
+		$this->value = '';
+		$this->_value = '';
 	}
 	
 	function validate($value){

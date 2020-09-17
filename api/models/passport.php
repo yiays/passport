@@ -131,7 +131,7 @@ class Session {
 		$this->token = $conn->escape_string($token);
 		$this->uid = (is_null($uid)?null:intval($uid));
 		$this->desc = (is_null($desc)?$this->generate_desc():$conn->escape_string($desc));
-		$this->expiry = (is_null($expiry)?$this->generate_expiry():intval($expiry));
+		$this->expiry = (is_null($expiry)?$this->generate_expiry():strtotime($expiry));
 	}
 	
 	function generate_desc(){
@@ -150,6 +150,17 @@ class Session {
 		$this->expiry = 0;
 		$this->cookie_store();
 		$this->mysql_delete();
+	}
+	function rename($name){
+		global $conn;
+		
+		$this->desc = $conn->escape_string($name);
+		$this->mysql_update();
+	}
+	function renew(){
+		$this->expiry = $this->generate_expiry();
+		$this->mysql_update();
+		$this->cookie_store();
 	}
 	
 	// Functions for storing tokens
@@ -187,7 +198,11 @@ class Session {
 		return true;
 	}
 	function cookie_store(){
-		setcookie('passportToken', $this->token, $this->expiry, '/', '.yiays.com', true, false);
+		if(!isset($_COOKIE['passportToken']) || $_COOKIE['passportToken'] == $this->token){
+			setcookie('passportToken', $this->token, $this->expiry, '/', '.yiays.com', true, false);
+			return true;
+		}
+		return false;
 	}
 }
 
