@@ -1,4 +1,6 @@
 <?php
+$title = 'Privacy Policy';
+$miniheader = true;
 require_once('includes/header.php');
 ?>
 <h1>Privacy Policy</h1>

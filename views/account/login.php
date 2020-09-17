@@ -20,6 +20,8 @@ if(isset($_POST['username'])){
 			die($result);
 		}
 	}else{
+		$title = 'Login';
+		$miniheader = true;
 		require_once('includes/header.php');
 		echo "<p style=\"color:red;\">$result->message</p>";
 		echo $loginform;
@@ -28,6 +30,8 @@ if(isset($_POST['username'])){
 	}
 }
 
+$title = 'Login';
+$miniheader = true;
 require_once('includes/header.php');
 echo $loginform;
 require_once('includes/footer.php');

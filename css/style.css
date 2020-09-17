@@ -23,6 +23,15 @@ a:hover{
 h1:first-child,h2:first-child,h3:first-child,h4:first-child,h5:first-child,h6:first-child{
 	margin-top: 0;
 }
+table{
+	background: #222;
+}
+table,table td{
+	border: 1px solid #444;
+}
+table button{
+	margin: 0;
+}
 
 /*
 	Form Tweaks
@@ -56,6 +65,7 @@ body{
 }
 
 header{
+	background: #111;
 	position: relative;
 	z-index: 1;
 	padding: 1rem 0;

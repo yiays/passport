@@ -8,11 +8,14 @@ if($user){
 }
 
 require_once('api/models/passport.php');
-require('includes/header.php');
 require_once('includes/util.php');
 
 require_once('api/forms/loginform.php');
 require_once('api/forms/registerform.php');
+
+$title = 'Home';
+$miniheader = false;
+require('includes/header.php');
 ?>
 <div class="tiles">
 	<div class="tile">

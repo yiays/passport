@@ -7,11 +7,13 @@ if(!$user){
 	die();
 }
 
+$title = 'My Account';
+$miniheader = true;
 require_once('includes/header.php');
 require_once('../passport.conn.php');
 
 echo "
-	<h1>Welcome, $user->username.</h1>";
+	<p><b>Welcome to your account, $user->username.</b></p>";
 echo '
 	<h2>Account management</h2>
 	<a class=\"btn\" href="/account/logout">Logout</a>';
@@ -21,15 +23,20 @@ echo '
 	<p>These sessions are associated with your account, the green dot indicates which one you are using right now, be sure to revoke any suspicious ones. <i>Inactive sessions are revoked after a week.</i></p>
 	<table width="100%">
 		<tr>
-			<th>Description</th><th>Last authorized</th><th>Actions</th>
+			<th>Description</th><th>Last accessed</th><th>Actions</th>
 		</tr>';
 $user->getsessions();
 foreach($user->sessions as $token=>$session){
 	$active = $token==$_COOKIE['passportToken']?'🟢 ':'';
-	$expiry = date('Y-m-d H:i:s', strtotime($session->expiry) - (7 * 24 * 60 * 60));
+	$expiry = date('Y-m-d H:i:s', $session->expiry - (7 * 24 * 60 * 60));
 	echo "
 		<tr>
-			<td>$active$session->desc</td><td>$expiry</td><td><button type=\"button\">Rename</button> <button type=\"button\">Revoke</button></td>
+			<td>$active$session->desc</td>
+			<td>$expiry</td>
+			<td>
+				<button type=\"button\" data-target=\"/api/user/session/$session->token/rename/\" data-method=\"GET\" data-params='{\"name\":\"?\"}' data-success=\"location.reload()\">Rename</button>
+				<button type=\"button\" data-target=\"/api/user/session/$session->token/revoke/\" data-success=\"location.reload()\">Revoke</button>
+			</td>
 		</tr>";
 }
 echo '
@@ -64,10 +71,10 @@ if(count($user->services) > 0){
 	</table>';
 }else{
 	echo '
-	<div class="well">
-		<h4>No linked services!</h4>
-		<p><a>Click here</a> to link other accounts to your passport.<br></p>
-	</div>';
+	<table width="100%">
+		<tr><th>No linked services!</th></tr>
+		<tr><td><a>Click here</a> to link other accounts to your passport.</td></tr>
+	</table>';
 }
 echo '
 	<p><i>Some Yiays.com projects require a Discord account to function, you can also bring your existing username and profile picture with you.</i></p>';
