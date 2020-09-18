@@ -197,8 +197,8 @@ class Session {
 		}
 		return true;
 	}
-	function cookie_store(){
-		if(!isset($_COOKIE['passportToken']) || $_COOKIE['passportToken'] == $this->token){
+	function cookie_store($force=false){
+		if((!isset($_COOKIE['passportToken']) || $_COOKIE['passportToken'] == $this->token) || $force){
 			setcookie('passportToken', $this->token, $this->expiry, '/', '.yiays.com', true, false);
 			return true;
 		}

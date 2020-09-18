@@ -44,7 +44,7 @@ function create_token($uid, $desc=null){
 	$session = new Session(rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '='), $uid, $desc);
 	$authenticator = new Authenticator($session, $uid);
 	$authenticator->user->session->mysql_insert();
-	$authenticator->user->session->cookie_store();
+	$authenticator->user->session->cookie_store(true);
 	
 	return $authenticator;
 }

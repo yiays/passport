@@ -28,11 +28,11 @@ echo '
 $user->getsessions();
 foreach($user->sessions as $token=>$session){
 	$active = $token==$_COOKIE['passportToken']?'🟢 ':'';
-	$expiry = date('Y-m-d H:i:s', $session->expiry - (7 * 24 * 60 * 60));
+	$accessed = date('d/m/Y h:ia', $session->expiry - (7 * 24 * 60 * 60));
 	echo "
 		<tr>
 			<td>$active$session->desc</td>
-			<td>$expiry</td>
+			<td>$accessed</td>
 			<td>
 				<button type=\"button\" data-target=\"/api/user/session/$session->token/rename/\" data-method=\"GET\" data-params='{\"name\":\"?\"}' data-success=\"location.reload()\">Rename</button>
 				<button type=\"button\" data-target=\"/api/user/session/$session->token/revoke/\" data-success=\"location.reload()\">Revoke</button>
