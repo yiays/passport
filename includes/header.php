@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+<?php
+require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
+?><!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -23,12 +25,12 @@
 		<a href="/"><h1>Passport</h1></a>
 		<p style="font-size: 1.1em;"><b>Passport gives you one account for all projects on Yiays.com!</b></p>
 		<div class="icons icons-mini">
-			<img src="/img/icons/yiays.svg" width="256" height="256" alt="Logo for Yiays.com" title="Yiays.com">
-			<img src="/img/icons/blog.svg" width="256" height="256" alt="Logo for Yiays Blog" title="Yiays Blog">
-			<img src="/img/icons/meme.svg" width="256" height="256" alt="Logo for MemeDB" title="MemeDB">
-			<img src="/img/icons/merely.svg" width="256" height="256" alt="Logo for Merely Services" title="Merely Services">
-			<img src="/img/icons/pukeko.svg" width="256" height="256" alt="Logo for PukekoHost" title="PukekoHost">
-			<img src="/img/icons/kahoot.svg" width="256" height="256" alt="Logo for KahootDiscord" title="KahootDiscord">
+		<?php
+			foreach(passport\getApplications() as $app){
+				echo "<img src=\"$app->icon\" width=\"256\" height=\"256\" alt=\"Logo for $app->name\" title=\"$app->name\">
+			";
+			}
+		?>
 		</div>
 		<div class="header-bg">
 			<div class="header-bg-pan">

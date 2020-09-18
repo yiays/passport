@@ -300,4 +300,38 @@ class Service {
 	}
 }
 
+class Application {
+	public $id;
+	public $name;
+	public $token;
+	public $desc;
+	public $icon;
+	public $returnurl;
+	public $hidden;
+	
+	function __construct($id, $name, $token, $desc, $icon, $returnurl, $hidden)
+	{
+		$this->id = $id;
+		$this->name = $name;
+		$this->token = $token;
+		$this->desc = $desc;
+		$this->icon = $icon;
+		$this->returnurl = $returnurl;
+		$this->hidden = $hidden;
+	}
+}
+
+function getApplications($hidden=false){
+	global $conn;
+	$result = $conn->query('SELECT * FROM application' . ($hidden?'':' WHERE Hidden = FALSE'));
+	if(!$result){
+		throw new \Exception("Failed to get list of applications; $conn->error");
+		return [];
+	}
+	$applications = [];
+	while($row = $result->fetch_assoc()){
+		$applications []= new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrl'], $row['Hidden']);
+	}
+	return $applications;
+}
 ?>
