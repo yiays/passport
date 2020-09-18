@@ -69,13 +69,38 @@ if(count($params)>0){
 					}
 				}
 			}else{
-				http_response_code(403);
-				print(json_encode(['status' => 403, 'desc' => 'Authorization required, or token not accepted.', 'login' => '/api/login/']));
+				if($params[0] == 'logout'){
+					$user->session->revoke();
+					print(json_encode(['status' => 200, 'desc' => 'Successfully logged out.']));
+				}else{
+					http_response_code(403);
+					print(json_encode(['status' => 403, 'desc' => 'Authorization required, or token not accepted.', 'login' => '/api/login/']));
+				}
 			}
 		break;
-		case 'logout':
-			$user->session->revoke();
-			print(json_encode(['status' => 200]));
+		case 'apps':
+			$refapps = passport\getApplications();
+			$apps = [];
+			foreach($refapps as $app){
+				unset($app->token);
+				$apps []= $app;
+			}
+			print(json_encode($apps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+		break;
+		case 'oauth2':
+			if(count($params)>1){
+				switch($params[1]){
+					case 'authorize':
+						
+					break;
+					default:
+						http_response_code(404);
+						print(json_encode(['status' => 404, 'desc' => 'Unrecognized command.']));
+				}
+			}else{
+				http_response_code(404);
+				print(json_encode(['status' => 404, 'desc' => 'Unrecognized command.']));
+			}
 		break;
 		default:
 			http_response_code(404);

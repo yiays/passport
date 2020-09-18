@@ -3,7 +3,7 @@ $dir = $_SERVER['REQUEST_URI'];
 if(strpos($dir, '?')) $dir = substr($dir, 0, strpos($dir, '?'));
 $dir = rtrim($dir, '/');
 
-if(strpos($dir, '.')!==false){
+if(strpos($dir, '.')===0){
 	http_response_code(403);
 	die('<h1>Forbidden</h3><p>You don\'t have permission to access this resource.</p>');
 }

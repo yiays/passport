@@ -33,7 +33,8 @@ class Form{
 		<form action=\"$this->action\" method=\"$this->method\">
 			".implode('', $this->fields)."
 			".implode('', $this->buttons)."
-		</form>";
+		</form>
+		";
 	}
 	
 	function validate($data){
@@ -138,11 +139,13 @@ class FormField{
 		if($this->type == 'textarea'){
 			return "
 			<label for=\"$this->id\">".ucfirst($this->name).":</label><br>
-			<textarea $this->name $this->_id $this->_required $this->_readonly $this->_placeholder $this->_autofocus $this->_minlength $this->_maxlength $this->_rows $this->_cols $this->extra>$this->value</textarea>";
+			<textarea $this->name $this->_id $this->_required $this->_readonly $this->_placeholder $this->_autofocus $this->_minlength $this->_maxlength $this->_rows $this->_cols $this->extra>$this->value</textarea>
+			";
 		}
 		return "
 		<label for=\"$this->id\">".ucfirst($this->name).":</label><br>
-		<input type=\"$this->type\" $this->_name $this->_id $this->_value $this->_required $this->_readonly $this->_placeholder $this->_autofocus $this->_minlength $this->_maxlength $this->extra><br>";
+		<input type=\"$this->type\" $this->_name $this->_id $this->_value $this->_required $this->_readonly $this->_placeholder $this->_autofocus $this->_minlength $this->_maxlength $this->extra><br>
+		";
 	}
 	
 	function clear(){
@@ -199,10 +202,12 @@ class FormButton{
 	{
 		if($this->type == 'submit'){
 			return "
-			<input type=\"submit\" value=\"$this->label\" $this->extra>";
+			<input type=\"submit\" value=\"$this->label\" $this->extra>
+			";
 		}
 		return "
-		<button type=\"$this->type\" $this->extra>$this->label</button>";
+		<button type=\"$this->type\" $this->extra>$this->label</button>
+		";
 	}
 }
 class FormValidationResult{

@@ -57,7 +57,7 @@ class User {
 	function setup($row){
 		$this->id = intval($row['Id']);
 		$this->username = $row['Username'];
-		$this->pfp = $row['ProfileUrl'];
+		$this->pfp = is_null($row['ProfileUrl'])?'https://passport.yiays.com/img/icons/user.svg':$row['ProfileUrl'];
 		$this->email = new Email($row['Email'], $row['EmailVerificationToken'], $row['EmailVerified']);
 		$this->admin = boolval($row['Admin']);
 		$this->banned = boolval($row['Banned']);
@@ -306,18 +306,56 @@ class Application {
 	public $token;
 	public $desc;
 	public $icon;
-	public $returnurl;
+	public $returnurls = [];
 	public $hidden;
 	
-	function __construct($id, $name, $token, $desc, $icon, $returnurl, $hidden)
+	function __construct($id, $name, $token, $desc, $icon, $returnurls, $hidden)
 	{
 		$this->id = $id;
 		$this->name = $name;
 		$this->token = $token;
 		$this->desc = $desc;
 		$this->icon = $icon;
-		$this->returnurl = $returnurl;
+		$this->returnurls = explode(',', $returnurls, 8);
 		$this->hidden = $hidden;
+	}
+	
+	function authwindow($user){
+		return "
+		<div class=\"card\">
+			<div class=\"card-header\">
+				<h3>Login to $this->name with Passport</h3>
+			</div>
+			<div class=\"card-body\">
+				<img src=\"$this->icon\" width=\"256\" height=\"256\" alt=\"$this->name Icon\" title=\"$this->name Icon\">
+				<img src=\"$user->pfp\" width=\"256\" height=\"256\" alt=\"$user->username's Profile Picture\" title=\"$user->username's Profile Picture\">
+				<b>$this->name</b> &gt; <b>$user->username</b>
+				<p>$this->desc</p>
+			</div>
+		</div>";
+	}
+}
+class InvalidApplication extends Application {
+	public $id = null;
+	public $name = "Invalid Application";
+	public $desc = "This application is invalid, the developer that created this authorization link didn't provide all the mandatory information.";
+	public $icon = "/img/icons/invalid.svg";
+	
+	function __construct(){
+		
+	}
+	function authwindow($user)
+	{
+		return "
+		<div class=\"card\">
+			<div class=\"card-header\">
+				<h3>$this->name</h3>
+			</div>
+			<div class=\"card-body\">
+				<img src=\"$this->icon\" width=\"256\" height=\"256\" alt=\"$this->name Icon\" title=\"$this->name Icon\">
+				<p>$this->desc</p>
+			</div>
+		</div>";
 	}
 }
 
@@ -330,8 +368,35 @@ function getApplications($hidden=false){
 	}
 	$applications = [];
 	while($row = $result->fetch_assoc()){
-		$applications []= new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrl'], $row['Hidden']);
+		$applications []= new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 	}
 	return $applications;
+}
+function getApplication($id){
+	global $conn;
+	$result = $conn->query('SELECT * FROM application WHERE Id = ' . $conn->escape_string($id));
+	if(!$result){
+		throw new \Exception("Failed to get list of applications; $conn->error");
+		return null;
+	}
+	$row = $result->fetch_assoc();
+	return new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+}
+function getApplicationFromData($data){
+	global $conn;
+	if(!isset($data['id']) || !isset($data['redirect']) || !is_numeric($data['id'])){
+		return new InvalidApplication();
+	}
+	
+	$result = $conn->query("SELECT * FROM application WHERE Id = $data[id]");
+	if(!$result || $result->num_rows == 0){
+		return new InvalidApplication();
+	}
+	
+	$row = $result->fetch_assoc();
+	if(!in_array(urldecode($data['redirect']), explode(',', $row['ReturnUrls']))){
+		return new InvalidApplication();
+	}
+	return new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 }
 ?>

@@ -20,6 +20,10 @@ $('a[data-cancel]').on('click', function(e){
 	return false;
 });
 
+$('button[data-href]').on('click', function(e){
+	window.location = this.dataset.href;
+});
+
 $('button[data-target]').on('click', function(e){
 	var target = this.dataset.target;
 	var method = this.dataset.method || 'GET';
