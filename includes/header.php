@@ -9,16 +9,16 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
 	<meta name="description" content="Manage your passport account for Yiays.com projects like the blog, MemeDB and PukekoHost.">
 	
 	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
-	<link rel="stylesheet" href="/css/style.css?v=68">
+	<link rel="stylesheet" href="/css/style.css?v=81">
 </head>
-<body>
+<body <?php if(isset($bodyclass)) echo "class=\"$bodyclass\""; ?>>
 	<?php if(isset($miniheader)&&$miniheader){ ?>
-	<header class="miniheader">
+	<header class="miniheader<?php if(isset($headerclass)) echo ' '.$headerclass; ?>">
 		<img src="/img/icons/passport.svg" width="256" height="256" alt="Logo for Passport" title="Passport" style="display:inline-block;height:3rem;width:auto;">
 		<a href="/" style="position: relative;top: -0.8em;"><h1 style="display: inline;">Passport</h1></a>
 	</header>
 	<?php }else{ ?>
-	<header>
+	<header <?php if(isset($headerclass)) echo "class=\"$headerclass\""; ?>>
 		<div class="icons">
 			<img src="/img/icons/passport.svg" width="256" height="256" alt="Logo for Passport" title="Passport">
 		</div>
@@ -43,4 +43,4 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
 		</div>
 	</header>
 	<?php } ?>
-	<div class="wrapper">
+	<div class="wrapper<?php if(isset($wrapperclass)) echo ' '.$wrapperclass; ?>">

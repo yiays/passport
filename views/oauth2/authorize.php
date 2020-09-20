@@ -11,6 +11,7 @@ $app =  passport\getApplicationFromData($_GET);
 
 $title = "Authorize an application";
 $miniheader = true;
+$wrapperclass = 'authenticator';
 require_once('includes/header.php');
 echo $app->authwindow($user);
 require_once('includes/footer.php');

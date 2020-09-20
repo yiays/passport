@@ -65,6 +65,14 @@ class User {
 		$this->banned = boolval($row['Banned']);
 	}
 	
+	function userpreviewbox(){
+		return "
+		<div class=\"userpreviewbox\">
+			<b>$this->username</b><br>
+			<span style=\"font-size: 0.66em\">Not you? <a href=\"/account/logout\">Logout</a></span>
+		</div>";
+	}
+	
 	function getservices(){
 		global $conn;
 		
@@ -388,19 +396,21 @@ class Service {
 
 class Application {
 	public $id;
-	public $name;
 	public $secret;
+	public $name;
+	public $url;
 	public $SECRET_LEN = 44;
 	public $desc;
 	public $icon;
 	public $returnurls = [];
 	public $hidden;
 	
-	function __construct($id, $name, $secret, $desc, $icon, $returnurls, $hidden)
+	function __construct($id, $secret, $name, $url, $desc, $icon, $returnurls, $hidden)
 	{
 		$this->id = $id;
-		$this->name = $name;
 		$this->secret = $secret;
+		$this->name = $name;
+		$this->url = $url;
 		$this->desc = $desc;
 		$this->icon = $icon;
 		$this->returnurls = explode(',', $returnurls, 8);
@@ -416,13 +426,23 @@ class Application {
 		return "
 		<div class=\"card\">
 			<div class=\"card-header\">
-				<h3>Login to $this->name with Passport</h3>
+				<h3>Authorize with $this->name</h3>
+			</div>
+			<div class=\"card-featurette featurette-2panel\">
+				<img src=\"$user->pfp\" width=\"256\" height=\"256\" alt=\"$user->username's Profile Picture\" title=\"$user->username's Profile Picture\">
+				<img src=\"$this->icon\" width=\"256\" height=\"256\" alt=\"$this->name Icon\" title=\"$this->name Icon\">
+				".$user->userpreviewbox()."
+				<div>
+					<b>$this->name</b><br>
+					<a style=\"font-size: 0.66em;\" href=\"$this->url\">$this->url</a>
+				</div>
 			</div>
 			<div class=\"card-body\">
-				<img src=\"$this->icon\" width=\"256\" height=\"256\" alt=\"$this->name Icon\" title=\"$this->name Icon\">
-				<img src=\"$user->pfp\" width=\"256\" height=\"256\" alt=\"$user->username's Profile Picture\" title=\"$user->username's Profile Picture\">
-				<b>$this->name</b> &gt; <b>$user->username</b>
 				<p>$this->desc</p>
+			</div>
+			<div class=\"card-footer\">
+				<button type=\"cancel\" data-cancel>Cancel</button>
+				<button type=\"button\">Authorize</button>
 			</div>
 		</div>";
 	}
@@ -430,7 +450,7 @@ class Application {
 class InvalidApplication extends Application {
 	public $id = null;
 	public $name = "Invalid Application";
-	public $desc = "This application is invalid, the developer that created this authorization link didn't provide all the mandatory information.";
+	public $desc = "This application is invalid, the developer that created this authorization link didn't provide all the required information.";
 	public $icon = "/img/icons/invalid.svg";
 	
 	function __construct(){
@@ -443,9 +463,14 @@ class InvalidApplication extends Application {
 			<div class=\"card-header\">
 				<h3>$this->name</h3>
 			</div>
-			<div class=\"card-body\">
+			<div class=\"card-featurette\">
 				<img src=\"$this->icon\" width=\"256\" height=\"256\" alt=\"$this->name Icon\" title=\"$this->name Icon\">
+			</div>
+			<div class=\"card-body\">
 				<p>$this->desc</p>
+			</div>
+			<div class=\"card-footer\">
+				<button type=\"cancel\" data-cancel>Cancel</button>
 			</div>
 		</div>";
 	}
@@ -460,7 +485,7 @@ function getApplications($hidden=false){
 	}
 	$applications = [];
 	while($row = $result->fetch_assoc()){
-		$applications []= new Application($row['Id'], $row['Name'], $row['Secret'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+		$applications []= new Application($row['Id'], $row['Secret'], $row['Name'], $row['Url'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 	}
 	return $applications;
 }
@@ -472,7 +497,7 @@ function getApplication($id){
 		return null;
 	}
 	$row = $result->fetch_assoc();
-	return new Application($row['Id'], $row['Name'], $row['Secret'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+	return new Application($row['Id'], $row['Secret'], $row['Name'], $row['Url'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 }
 function getApplicationFromData($data){
 	global $conn;
@@ -489,6 +514,6 @@ function getApplicationFromData($data){
 	if(!in_array(urldecode($data['redirect']), explode(',', $row['ReturnUrls']))){
 		return new InvalidApplication();
 	}
-	return new Application($row['Id'], $row['Name'], $row['Secret'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+	return new Application($row['Id'], $row['Secret'], $row['Name'], $row['Url'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 }
 ?>
