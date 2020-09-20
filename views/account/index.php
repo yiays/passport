@@ -29,6 +29,7 @@ $user->getsessions();
 foreach($user->sessions as $token=>$session){
 	$active = $token==$_COOKIE['passportToken']?'🟢 ':'';
 	$accessed = date('d/m/Y h:ia', $session->expiry - (7 * 24 * 60 * 60));
+	if($session->expiry < time()) $accessed .= ' (Expired)';
 	echo "
 		<tr>
 			<td>$active$session->desc</td>
@@ -45,7 +46,10 @@ echo '
 
 echo '
 	<h3>Linked services</h3>
-	<p>Link other services to your account for additional functionality.</p>';
+	<p>
+		Link other services to your account for additional functionality.
+		<i>Some Yiays.com projects require a Discord account to function, you can also bring your existing username and profile picture with you.</i>
+	</p>';
 $user->getservices();
 if(count($user->services) > 0){
 	echo '
@@ -76,8 +80,37 @@ if(count($user->services) > 0){
 		<tr><td><a>Click here</a> to link other accounts to your passport.</td></tr>
 	</table>';
 }
+
 echo '
-	<p><i>Some Yiays.com projects require a Discord account to function, you can also bring your existing username and profile picture with you.</i></p>';
+	<h3>Authorized applications</h3>
+	<p>These apps/websites have access to your account. <i>If you don\'t use an app for 3 months, the connection will be removed.</i></p>
+	<table width="100%">';
+$user->getauthapps();
+if($user->authapps){
+	echo '
+		<tr>
+			<th>App name</th><th>Last accessed</th><th>Actions</th>
+		</tr>';
+	foreach($user->authapps as $token=>$authapp){
+		$accessed = date('d/m/Y h:ia', $authapp->expiry - (3 * 30 * 24 * 60 * 60));
+		if($authapp->expiry < time()) $accessed .= ' (Expired)';
+		$app = passport\getApplication($authapp->appid);
+		echo "
+		<tr>
+			<td>$app->name</td>
+			<td>$accessed</td>
+			<td>
+				<button type=\"button\" data-target=\"/api/user/authapp/$authapp->appid/revoke/\" data-success=\"location.reload()\">Revoke</button>
+			</td>
+		</tr>";
+	}
+}else{
+	echo '
+		<tr><th>No authorized apps!</th></tr>
+		<tr><td>Logging in on supported yiays.com apps and websites with your Passport will add them here.</td></tr>';
+}
+echo '
+	</table>';
 
 require_once('includes/footer.php');
 $conn->close();

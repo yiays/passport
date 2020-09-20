@@ -41,7 +41,7 @@ class Authenticator{
 
 function create_token($uid, $desc=null){
 	//Gives a user access to their account for this device. Should only be called if the password has already been verified.
-	$session = new Session(rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '='), $uid, $desc);
+	$session = new Session(null, $uid, $desc);
 	$authenticator = new Authenticator($session, $uid);
 	$authenticator->user->session->mysql_insert();
 	$authenticator->user->session->cookie_store(true);

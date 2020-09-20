@@ -20,6 +20,7 @@ if(count($params)>0){
 					$tmpuser->session = '/api/user/session/';
 					$tmpuser->sessions = '/api/user/sessions/';
 					$tmpuser->services = '/api/user/services/';
+					$tmpuser->authapps = '/api/user/authapps/';
 					unset($tmpuser->email->token);
 					print(json_encode($tmpuser, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 				}else{
@@ -63,6 +64,16 @@ if(count($params)>0){
 						case 'services':
 							print(json_encode(array_values($user->getservices()), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 						break;
+						case 'authapps':
+							$refauthapps = $user->getauthapps();
+							$authapps = [];
+							foreach($refauthapps as $authapp){
+								unset($authapp->token);
+								unset($authapp->authcode);
+								$authapps []= $authapp;
+							}
+							print(json_encode($authapps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+						break;
 						default:
 							http_response_code(404);
 							print(json_encode(['status' => 404, 'desc' => 'Unrecognized command.']));
@@ -82,7 +93,7 @@ if(count($params)>0){
 			$refapps = passport\getApplications();
 			$apps = [];
 			foreach($refapps as $app){
-				unset($app->token);
+				unset($app->secret);
 				$apps []= $app;
 			}
 			print(json_encode($apps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));

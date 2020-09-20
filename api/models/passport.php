@@ -18,6 +18,7 @@ class User {
 	public Session $session;
 	public array $sessions;
 	public array $services;
+	public array $authapps;
 	public string $pfp;
 	public Email $email;
 	public bool $admin;
@@ -28,6 +29,7 @@ class User {
 	public $session;
 	public $sessions;
 	public $services;
+	public $authapps;
 	public $pfp;
 	public $email;
 	public $admin;
@@ -116,40 +118,62 @@ class User {
 		}
 		return $this->sessions;
 	}
+	
+	function getauthapps(){
+		global $conn;
+		
+		$this->authapps = [];
+		$result = $conn->query("SELECT * FROM auth_app WHERE UserId = $this->id ORDER BY Expiry ASC");
+		if(!$result){
+			throw new \Exception("Failed to fetch user's authorized apps; $conn->error");
+			return false;
+		}
+		while($row = $result->fetch_assoc()){
+			$this->authapps[$row['SessionId']] = new AppSession($row['SessionId'], $row['UserId'], $row['AppId'], $row['AuthCode'], $row['Expiry']);
+		}
+		return $this->authapps;
+	}
 }
 
 class Session {
 	public $token;
+	public $TOKEN_LEN = 22;
 	public $uid;
 	public $desc;
 	public $expiry;
+	public $EXPIRY_LEN = (7 * 24 * 60 * 60); // Expires in 7 days
 	
 	function __construct($token, $uid=null, $desc=null, $expiry=null)
 	{
 		global $conn;
 		
-		$this->token = $conn->escape_string($token);
-		$this->uid = (is_null($uid)?null:intval($uid));
-		$this->desc = (is_null($desc)?$this->generate_desc():$conn->escape_string($desc));
-		$this->expiry = (is_null($expiry)?$this->generate_expiry():strtotime($expiry));
+		$this->token = is_null($token)?$this->generate_token():$conn->escape_string($token);
+		$this->uid = is_null($uid)?null:intval($uid);
+		$this->desc = is_null($desc)?$this->generate_desc():$conn->escape_string($desc);
+		$this->expiry = is_null($expiry)?$this->generate_expiry():strtotime($expiry);
 	}
 	
+	function generate_token(){
+		$this->token = rtrim(strtr(base64_encode(random_bytes(floor($this->TOKEN_LEN / 1.33))), '+/', '-_'), '=');
+		return $this->token;
+	}
 	function generate_desc(){
 		ini_set('browscap', $_SERVER['DOCUMENT_ROOT'].'/includes/lite_php_browscap.ini');
 		$browsernfo = getBrowser();
 		$ipnfo = json_decode(file_get_contents("http://ipinfo.io/$_SERVER[REMOTE_ADDR]/json"));
-		return "Unnamed $browsernfo[platform] device via $browsernfo[name] in $ipnfo->city.";
+		$this->desc = "Unnamed $browsernfo[platform] device via $browsernfo[name] in $ipnfo->city.";
+		return $this->desc;
 	}
 	function generate_expiry(){
-		// Expires in 7 days
-		return time() + (7 * 24 * 60 * 60);
+		$this->expiry = time() + $this->EXPIRY_LEN;
+		return $this->expiry;
 	}
 	
 	// High level functions
 	function revoke(){
 		$this->expiry = 0;
-		$this->cookie_store();
 		$this->mysql_delete();
+		$this->cookie_store();
 	}
 	function rename($name){
 		global $conn;
@@ -202,6 +226,68 @@ class Session {
 			setcookie('passportToken', $this->token, $this->expiry, '/', '.yiays.com', true, false);
 			return true;
 		}
+		return false;
+	}
+}
+
+class AppSession extends Session {
+	public $TOKEN_LEN = 32;
+	public $appid;
+	public $desc = null;
+	public $authcode;
+	public $EXPIRY_LEN = (3 * 30 * 24 * 60 * 60); // Expires in 3 months
+	
+	function __construct($token=null, $uid=null, $appid=null, $authcode=null, $expiry=null)
+	{
+		global $conn;
+		
+		$this->token = is_null($token)?$this->generate_token():$conn->escape_string($token);
+		$this->uid = is_null($uid)?null:intval($uid);
+		$this->appid = is_null($appid)?null:intval($appid);
+		$this->authcode = is_null($authcode)?null:intval($authcode);
+		$this->expiry = is_null($expiry)?$this->generate_expiry():strtotime($expiry);
+	}
+	
+	// High level functions
+	function rename($desc){
+		return false;
+	}
+	
+	// Functions for storing tokens
+	function mysql_insert(){
+		global $conn;
+		
+		$expiry = date('Y-m-d H:i:s', $this->expiry);
+		$result = $conn->query("INSERT INTO auth_app(SessionId, AppId, UserId, AuthCode, Expiry) VALUES(\"$this->token\", $this->appid, $this->uid, $this->authcode, \"$expiry\")");
+		if(!$result){
+			throw new \Exception("Failed to store token; $conn->error");
+		}else{
+			return $this;
+		}
+	}
+	function mysql_update(){
+		global $conn;
+		
+		$expiry = date('Y-m-d H:i:s', $this->expiry);
+		$result = $conn->query("UPDATE auth_app SET Expiry = \"$expiry\" WHERE SessionId = \"$this->token\"");
+		if(!$result){
+			throw new \Exception("Failed to update stored token; $conn->error");
+			return null;
+		}else{
+			return $this;
+		}
+	}
+	function mysql_delete(){
+		global $conn;
+		
+		$result = $conn->query("DELETE FROM auth_app WHERE SessionId = \"$this->token\"");
+		if(!$result){
+			throw new \Exception("Failed to remove stored token; $conn->error");
+			return false;
+		}
+		return true;
+	}
+	function cookie_store($force=false){
 		return false;
 	}
 }
@@ -303,21 +389,27 @@ class Service {
 class Application {
 	public $id;
 	public $name;
-	public $token;
+	public $secret;
+	public $SECRET_LEN = 44;
 	public $desc;
 	public $icon;
 	public $returnurls = [];
 	public $hidden;
 	
-	function __construct($id, $name, $token, $desc, $icon, $returnurls, $hidden)
+	function __construct($id, $name, $secret, $desc, $icon, $returnurls, $hidden)
 	{
 		$this->id = $id;
 		$this->name = $name;
-		$this->token = $token;
+		$this->secret = $secret;
 		$this->desc = $desc;
 		$this->icon = $icon;
 		$this->returnurls = explode(',', $returnurls, 8);
 		$this->hidden = $hidden;
+	}
+	
+	function generate_secret()
+	{
+		$this->secret = rtrim(strtr(base64_encode(random_bytes(floor($this->SECRET_LEN / 1.33))), '+/', '-_'), '=');
 	}
 	
 	function authwindow($user){
@@ -368,7 +460,7 @@ function getApplications($hidden=false){
 	}
 	$applications = [];
 	while($row = $result->fetch_assoc()){
-		$applications []= new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+		$applications []= new Application($row['Id'], $row['Name'], $row['Secret'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 	}
 	return $applications;
 }
@@ -380,7 +472,7 @@ function getApplication($id){
 		return null;
 	}
 	$row = $result->fetch_assoc();
-	return new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+	return new Application($row['Id'], $row['Name'], $row['Secret'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 }
 function getApplicationFromData($data){
 	global $conn;
@@ -397,6 +489,6 @@ function getApplicationFromData($data){
 	if(!in_array(urldecode($data['redirect']), explode(',', $row['ReturnUrls']))){
 		return new InvalidApplication();
 	}
-	return new Application($row['Id'], $row['Name'], $row['Token'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+	return new Application($row['Id'], $row['Name'], $row['Secret'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
 }
 ?>
