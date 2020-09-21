@@ -9,7 +9,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
 	<meta name="description" content="Manage your passport account for Yiays.com projects like the blog, MemeDB and PukekoHost.">
 	
 	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
-	<link rel="stylesheet" href="/css/style.css?v=81">
+	<link rel="stylesheet" href="/css/style.css?v=85">
 </head>
 <body <?php if(isset($bodyclass)) echo "class=\"$bodyclass\""; ?>>
 	<?php if(isset($miniheader)&&$miniheader){ ?>

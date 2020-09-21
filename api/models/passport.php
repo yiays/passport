@@ -69,7 +69,7 @@ class User {
 		return "
 		<div class=\"userpreviewbox\">
 			<b>$this->username</b><br>
-			<span style=\"font-size: 0.66em\">Not you? <a href=\"/account/logout\">Logout</a></span>
+			<span class=\"sub\">Not you? <a href=\"/account/logout\">Logout</a></span>
 		</div>";
 	}
 	
@@ -369,6 +369,10 @@ class Email {
 		$this->token = $token;
 		$this->verified = $verified;
 	}
+	function __toString()
+	{
+		return $this->address;
+	}
 }
 
 class Service {
@@ -434,11 +438,19 @@ class Application {
 				".$user->userpreviewbox()."
 				<div>
 					<b>$this->name</b><br>
-					<a style=\"font-size: 0.66em;\" href=\"$this->url\">$this->url</a>
+					<a class=\"sub\" href=\"$this->url\">$this->url</a>
 				</div>
 			</div>
 			<div class=\"card-body\">
 				<p>$this->desc</p>
+				<p>
+					$this->name will have access to;
+					<ul>
+						<li>Your username<br><span class=\"sub\">$user->username</span></li>
+						<li>Your email address<br><span class=\"sub\">$user->email</span></li>
+						<li>Your profile picture</li>
+					</ul>
+				</p>
 			</div>
 			<div class=\"card-footer\">
 				<button type=\"cancel\" data-cancel>Cancel</button>

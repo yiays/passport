@@ -32,6 +32,11 @@ table button{
 	margin: 0;
 }
 
+.sub{
+	font-size: 0.66em;
+	color: #ccc;
+}
+
 /*
 	Form Tweaks
 */
@@ -263,7 +268,7 @@ footer{
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: 1fr auto;
-	gap: 1rem 5rem;
+	gap: 1rem 4rem;
 }
 .card>.card-featurette.featurette-2panel::after{
 	content: '>';
@@ -284,8 +289,11 @@ footer{
 	padding: 1rem;
 	background: #353535;
 }
-.card>.card-body>*{
-	margin: 0;
+.card>.card-body>*:first-child{
+	margin-top: 0;
+}
+.card>.card-body>*:last-child{
+	margin-bottom: 0;
 }
 .card>.card-footer{
 	padding: 2rem;
