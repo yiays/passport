@@ -155,14 +155,14 @@ class Session {
 	{
 		global $conn;
 		
-		$this->token = is_null($token)?$this->generate_token():$conn->escape_string($token);
+		$this->token = is_null($token)?$this->generate_token($this->TOKEN_LEN):$conn->escape_string($token);
 		$this->uid = is_null($uid)?null:intval($uid);
 		$this->desc = is_null($desc)?$this->generate_desc():$conn->escape_string($desc);
-		$this->expiry = is_null($expiry)?$this->generate_expiry():strtotime($expiry);
+		$this->expiry = is_null($expiry)?$this->generate_expiry($this->EXPIRY_LEN):strtotime($expiry);
 	}
 	
-	function generate_token(){
-		$this->token = rtrim(strtr(base64_encode(random_bytes(floor($this->TOKEN_LEN / 1.33))), '+/', '-_'), '=');
+	function generate_token($len){
+		$this->token = rtrim(strtr(base64_encode(random_bytes(floor($len / 1.33))), '+/', '-_'), '=');
 		return $this->token;
 	}
 	function generate_desc(){
@@ -172,8 +172,8 @@ class Session {
 		$this->desc = "Unnamed $browsernfo[platform] device via $browsernfo[name] in $ipnfo->city.";
 		return $this->desc;
 	}
-	function generate_expiry(){
-		$this->expiry = time() + $this->EXPIRY_LEN;
+	function generate_expiry($len){
+		$this->expiry = time() + $len;
 		return $this->expiry;
 	}
 	
@@ -190,7 +190,7 @@ class Session {
 		$this->mysql_update();
 	}
 	function renew(){
-		$this->expiry = $this->generate_expiry();
+		$this->expiry = $this->generate_expiry($this->EXPIRY_LEN);
 		$this->mysql_update();
 		$this->cookie_store();
 	}
@@ -240,6 +240,7 @@ class Session {
 
 class AppSession extends Session {
 	public $TOKEN_LEN = 32;
+	public $AUTHCODE_LEN = 10;
 	public $appid;
 	public $desc = null;
 	public $authcode;
@@ -249,11 +250,16 @@ class AppSession extends Session {
 	{
 		global $conn;
 		
-		$this->token = is_null($token)?$this->generate_token():$conn->escape_string($token);
+		$this->token = is_null($token)?$this->generate_token($this->TOKEN_LEN):$conn->escape_string($token);
 		$this->uid = is_null($uid)?null:intval($uid);
 		$this->appid = is_null($appid)?null:intval($appid);
 		$this->authcode = is_null($authcode)?null:intval($authcode);
-		$this->expiry = is_null($expiry)?$this->generate_expiry():strtotime($expiry);
+		$this->expiry = is_null($expiry)?$this->generate_expiry($this->EXPIRY_LEN):strtotime($expiry);
+	}
+	
+	function generate_authcode(){
+		$this->authcode = abs(unpack('L', random_bytes(floor($this->AUTHCODE_LEN * 4)))[1]); // Should be using 'Q' mode and no abs, requires 64 bit php...
+		return $this->authcode;
 	}
 	
 	// High level functions
@@ -409,7 +415,7 @@ class Application {
 	public $returnurls = [];
 	public $hidden;
 	
-	function __construct($id, $secret, $name, $url, $desc, $icon, $returnurls, $hidden)
+	function __construct($id=null, $secret=null, $name=null, $url=null, $desc=null, $icon=null, $returnurls=null, $hidden=null)
 	{
 		$this->id = $id;
 		$this->secret = $secret;
@@ -424,6 +430,16 @@ class Application {
 	function generate_secret()
 	{
 		$this->secret = rtrim(strtr(base64_encode(random_bytes(floor($this->SECRET_LEN / 1.33))), '+/', '-_'), '=');
+	}
+	function authorize($user){
+		if($this->id !== null){
+			$session = new AppSession(null, $user->id, $this->id, null);
+			$session->generate_authcode();
+			$session->expiry = $session->generate_expiry(5 * 60); // AppSessions expire in 5 minutes if unredeemed.
+			$session->mysql_insert();
+			return $session;
+		}
+		return false;
 	}
 	
 	function authwindow($user){
@@ -446,15 +462,17 @@ class Application {
 				<p>
 					$this->name will have access to;
 					<ul>
-						<li>Your username<br><span class=\"sub\">$user->username</span></li>
-						<li>Your email address<br><span class=\"sub\">$user->email</span></li>
+						<li>Your username<br><i>$user->username</i></li>
+						<li>Your email address<br><i>$user->email</i></li>
 						<li>Your profile picture</li>
 					</ul>
 				</p>
 			</div>
 			<div class=\"card-footer\">
-				<button type=\"cancel\" data-cancel>Cancel</button>
-				<button type=\"button\">Authorize</button>
+				<form target=\"\" method=\"POST\">
+					<button type=\"cancel\" data-cancel>Cancel</button>
+					<input type=\"submit\" name=\"action\" value=\"Authorize\">
+				</form>
 			</div>
 		</div>";
 	}

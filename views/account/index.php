@@ -92,7 +92,11 @@ if($user->authapps){
 			<th>App name</th><th>Last accessed</th><th>Actions</th>
 		</tr>';
 	foreach($user->authapps as $token=>$authapp){
-		$accessed = date('d/m/Y h:ia', $authapp->expiry - (3 * 30 * 24 * 60 * 60));
+		if(!is_null($authapp->authcode)){
+			$accessed = "Pending activation...";
+		}else{
+			$accessed = date('d/m/Y h:ia', $authapp->expiry - (3 * 30 * 24 * 60 * 60));
+		}
 		if($authapp->expiry < time()) $accessed .= ' (Expired)';
 		$app = passport\getApplication($authapp->appid);
 		echo "

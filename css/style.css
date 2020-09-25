@@ -285,6 +285,9 @@ footer{
 	max-height: 256px;
 	object-fit: contain;
 }
+.card-featurette.featurette-2panel>img:first-child{
+	border-radius: 50%;
+}
 .card>.card-body{
 	padding: 1rem;
 	background: #353535;

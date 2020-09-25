@@ -62,7 +62,13 @@ if(count($params)>0){
 							print(json_encode(array_values($user->getsessions()), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 						break;
 						case 'services':
-							print(json_encode(array_values($user->getservices()), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+							$refservices = $user->getservices();
+							$services = [];
+							foreach($refservices as $service){
+								unset($service->token);
+								$services []= $service;
+							}
+							print(json_encode($services, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 						break;
 						case 'authapps':
 							$refauthapps = $user->getauthapps();
@@ -73,6 +79,10 @@ if(count($params)>0){
 								$authapps []= $authapp;
 							}
 							print(json_encode($authapps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+						break;
+						case 'authapp':
+							http_response_code(501);
+							die("This feature is to be implemented...");
 						break;
 						default:
 							http_response_code(404);
