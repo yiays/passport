@@ -431,12 +431,29 @@ class Application {
 	{
 		$this->secret = rtrim(strtr(base64_encode(random_bytes(floor($this->SECRET_LEN / 1.33))), '+/', '-_'), '=');
 	}
-	function authorize($user){
+	function authorize(User $user){
 		if($this->id !== null){
-			$session = new AppSession(null, $user->id, $this->id, null);
-			$session->generate_authcode();
-			$session->expiry = $session->generate_expiry(5 * 60); // AppSessions expire in 5 minutes if unredeemed.
-			$session->mysql_insert();
+			$session = null;
+			
+			foreach($user->getauthapps() as $authapp){
+				if($authapp->appid == $this->id){
+					if($authapp->expiry > time()){
+						$session = $authapp;
+						$session->generate_authcode();
+						$session->expiry = $session->generate_expiry(5 * 60);
+						$session->mysql_update();
+					}else{
+						$authapp->mysql_delete();
+					}
+				}
+			}
+			
+			if(is_null($session)){
+				$session = new AppSession(null, $user->id, $this->id, null);
+				$session->generate_authcode();
+				$session->expiry = $session->generate_expiry(5 * 60); // AppSessions expire in 5 minutes if unredeemed.
+				$session->mysql_insert();
+			}
 			return $session;
 		}
 		return false;
