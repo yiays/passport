@@ -150,6 +150,7 @@ class Session {
 	public $desc;
 	public $expiry;
 	public $EXPIRY_LEN = (7 * 24 * 60 * 60); // Expires in 7 days
+	public $verified = false;
 	
 	function __construct($token, $uid=null, $desc=null, $expiry=null)
 	{
@@ -178,6 +179,30 @@ class Session {
 	}
 	
 	// High level functions
+	function fetch(){
+		// Gets extra session information and the associated user
+		global $conn;
+		
+		$result = $conn->query("SELECT Description,Expiry,user.* FROM session LEFT JOIN user ON session.UserId = user.Id WHERE SessionId = \"{$this->token}\" AND Expiry > CURRENT_TIMESTAMP()");
+		
+		if(!$result){
+			throw new \Exception("Failed to restore login data from token; $conn->error");
+			return false;
+		}
+		if($result->num_rows != 1) return false;
+		$this->verified = true;
+		
+		$row = $result->fetch_assoc();
+		$user = new User(intval($row['Id']));
+		$this->desc = $row['Description'];
+		unset($row['Description']);
+		$this->expiry = strtotime($row['Expiry']);
+		unset($row['Expiry']);
+		$user->setup($row);
+		$user->session = $this;
+		
+		return $user;
+	}
 	function revoke(){
 		$this->expiry = 0;
 		$this->mysql_delete();
@@ -244,12 +269,15 @@ class AppSession extends Session {
 	public $appid;
 	public $desc = null;
 	public $authcode;
+	public $user = null;
 	public $EXPIRY_LEN = (3 * 30 * 24 * 60 * 60); // Expires in 3 months
+	public $on_db = false;
 	
 	function __construct($token=null, $uid=null, $appid=null, $authcode=null, $expiry=null)
 	{
 		global $conn;
 		
+		$this->on_db = is_null($token)?false:true;
 		$this->token = is_null($token)?$this->generate_token($this->TOKEN_LEN):$conn->escape_string($token);
 		$this->uid = is_null($uid)?null:intval($uid);
 		$this->appid = is_null($appid)?null:intval($appid);
@@ -263,8 +291,42 @@ class AppSession extends Session {
 	}
 	
 	// High level functions
+	function fetch(){
+		// Gets extra app session information and the associated app
+		global $conn;
+		
+		if($this->on_db){
+			$verificationmethod = "SessionId = \"{$this->token}\"";
+		}else{
+			$verificationmethod = "AuthCode = \"{$this->authcode}\"";
+		}
+		
+		$result = $conn->query("SELECT Expiry,AppId,UserId,application.* FROM auth_app LEFT JOIN application ON auth_app.AppId = application.Id WHERE $verificationmethod AND Expiry > CURRENT_TIMESTAMP()");
+		
+		if(!$result){
+			throw new \Exception("Failed to restore login data from token; $conn->error");
+			return false;
+		}
+		if($result->num_rows != 1) return false;
+		$this->verified = true;
+		
+		$row = $result->fetch_assoc();
+		$user = new User(intval($row['UserId']));
+		$app = new Application(intval($row['AppId']));
+		$this->expiry = strtotime($row['Expiry']);
+		unset($row['Expiry']);
+		$app->setup($row);
+		$this->user = $user;
+		$app->session = $this;
+		
+		return $app;
+	}
 	function rename($desc){
 		return false;
+	}
+	function renew(){
+		$this->expiry = $this->generate_expiry($this->EXPIRY_LEN);
+		$this->mysql_update();
 	}
 	
 	// Functions for storing tokens
@@ -413,18 +475,23 @@ class Application {
 	public $desc;
 	public $icon;
 	public $returnurls = [];
+	public $session;
 	public $hidden;
 	
-	function __construct($id=null, $secret=null, $name=null, $url=null, $desc=null, $icon=null, $returnurls=null, $hidden=null)
+	function __construct($id=null)
 	{
 		$this->id = $id;
-		$this->secret = $secret;
-		$this->name = $name;
-		$this->url = $url;
-		$this->desc = $desc;
-		$this->icon = $icon;
-		$this->returnurls = explode(',', $returnurls, 8);
-		$this->hidden = $hidden;
+	}
+	
+	function setup($row){
+		$this->id = intval($row['Id']);
+		$this->secret = $row['Secret'];
+		$this->name = $row['Name'];
+		$this->url = $row['Url'];
+		$this->desc = $row['Description'];
+		$this->icon = $row['Icon'];
+		$this->returnurls = explode(',', $row['ReturnUrls'], 8);
+		$this->hidden = boolval($row['Hidden']);
 	}
 	
 	function generate_secret()
@@ -532,7 +599,9 @@ function getApplications($hidden=false){
 	}
 	$applications = [];
 	while($row = $result->fetch_assoc()){
-		$applications []= new Application($row['Id'], $row['Secret'], $row['Name'], $row['Url'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+		$app = new Application();
+		$app->setup($row);
+		$applications []= $app;
 	}
 	return $applications;
 }
@@ -544,7 +613,10 @@ function getApplication($id){
 		return null;
 	}
 	$row = $result->fetch_assoc();
-	return new Application($row['Id'], $row['Secret'], $row['Name'], $row['Url'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+	
+	$app = new Application();
+	$app->setup($row);
+	return $app;
 }
 function getApplicationFromData($data){
 	global $conn;
@@ -561,6 +633,9 @@ function getApplicationFromData($data){
 	if(!in_array(urldecode($data['redirect']), explode(',', $row['ReturnUrls']))){
 		return new InvalidApplication();
 	}
-	return new Application($row['Id'], $row['Secret'], $row['Name'], $row['Url'], $row['Description'], $row['Icon'], $row['ReturnUrls'], $row['Hidden']);
+	
+	$app = new Application();
+	$app->setup($row);
+	return $app;
 }
 ?>

@@ -4,7 +4,7 @@ require_once('api/models/forms.php');
 require_once('api/auth.php');
 
 //Create form
-$registerform = new Form('Create your passport', '', 'POST');
+$registerform = new Form('Create your passport', '/account/register', 'POST');
 
 //Define form fields
 $registerform->fields []= new FormField('text', 'username', 'new-username', '', true, false, null, true, 3, 64);
@@ -63,7 +63,7 @@ $registerform->submit = function($data){
     }
     
     $row = $result->fetch_row();
-    $authenticator = passport\create_token($row[0], "Unnamed device used for registration.");
-    return passport\dologin($authenticator);
+    $session = passport\create_token($row[0], "Unnamed device used for registration.");
+    return $session->fetch();
 };
 ?>

@@ -8,7 +8,7 @@ if(session_status() !== PHP_SESSION_ACTIVE){
 }
 
 //Create form
-$loginform = new Form('Access your passport', '', 'POST');
+$loginform = new Form('Access your passport', '/account/login', 'POST');
 
 //Define form fields
 $loginform->fields []= new FormField('text', 'username', 'username', '', true, false, null, true, 3, 64);
@@ -58,7 +58,7 @@ $loginform->rules []= function($data){
 };
 
 $loginform->submit = function(){
-    $authenticator = passport\create_token($_SESSION['uid']);
-    return passport\dologin($authenticator);
+    $session = passport\create_token($_SESSION['uid']);
+    return $session->fetch();
 };
 ?>

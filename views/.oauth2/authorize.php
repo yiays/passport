@@ -1,5 +1,5 @@
 <?php
-require_once('api/auth.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/api/auth.php');
 
 $user = passport\autologin();
 if(!$user){
@@ -29,7 +29,7 @@ if(isset($_POST['action'])){
 $title = "Authorize an application";
 $miniheader = true;
 $wrapperclass = 'authenticator';
-require_once('includes/header.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/includes/header.php');
 echo $app->authwindow($user);
-require_once('includes/footer.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/includes/footer.php');
 ?>

@@ -77,7 +77,7 @@ if(count($user->services) > 0){
 	echo '
 	<table width="100%">
 		<tr><th>No linked services!</th></tr>
-		<tr><td><a>Click here</a> to link other accounts to your passport.</td></tr>
+		<tr><td>Link other online accounts to your passport. <i>(Coming soon.)</i></td></tr>
 	</table>';
 }
 
@@ -97,7 +97,7 @@ if($user->authapps){
 		}else{
 			$accessed = date('d/m/Y h:ia', $authapp->expiry - (3 * 30 * 24 * 60 * 60));
 		}
-		if($authapp->expiry < time()) $accessed .= ' (Expired)';
+		if($authapp->expiry < time()) $accessed = 'Activation cancelled or failed to complete.';
 		$app = passport\getApplication($authapp->appid);
 		echo "
 		<tr>

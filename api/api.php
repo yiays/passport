@@ -1,14 +1,25 @@
 <?php
+
+use passport\AppSession;
+
 require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.conn.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/forms.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/api/auth.php');
 
-$user = passport\autologin();
+$app = passport\autoauthapp();
+if($app){
+	$user = $app->user;
+	$user->fetch();
+}else{
+	$user = passport\autologin();
+}
 
 header("Content-Type: application/json");
 
-$params = explode('/', substr($_SERVER['REQUEST_URI'], 5));
+$request_url = substr($_SERVER['REQUEST_URI'], 5);
+if(strpos($request_url, '?') !== false) $request_url = substr($request_url, 0, strpos($request_url, '?'));
+$params = explode('/', $request_url);
 if(end($params) == '') array_pop($params);
 
 if(count($params)>0){
@@ -84,19 +95,18 @@ if(count($params)>0){
 							http_response_code(501);
 							die("This feature is to be implemented...");
 						break;
+						case 'logout':
+							$user->session->revoke();
+							print(json_encode(['status' => 200, 'desc' => 'Successfully logged out.']));
+						break;
 						default:
 							http_response_code(404);
 							print(json_encode(['status' => 404, 'desc' => 'Unrecognized command.']));
 					}
 				}
 			}else{
-				if($params[0] == 'logout'){
-					$user->session->revoke();
-					print(json_encode(['status' => 200, 'desc' => 'Successfully logged out.']));
-				}else{
-					http_response_code(403);
-					print(json_encode(['status' => 403, 'desc' => 'Authorization required, or token not accepted.', 'login' => '/api/login/']));
-				}
+				http_response_code(403);
+				print(json_encode(['status' => 403, 'desc' => 'Authorization required, or token not accepted.']));
 			}
 		break;
 		case 'apps':
@@ -112,11 +122,44 @@ if(count($params)>0){
 			if(count($params)>1){
 				switch($params[1]){
 					case 'authorize':
-						
+						header("Content-Type: text/html; charset=UTF-8");
+						require($_SERVER['DOCUMENT_ROOT'].'/views/.oauth2/authorize.php');
+					break;
+					case 'token':
+						if(isset($_POST['client_id']) && isset($_POST['client_secret']) && isset($_POST['code'])){
+							$authapp = new AppSession(null, null, null, intval($_POST['code']));
+							$result = $app = $authapp->fetch();
+							if($app){
+								if($app->id == intval($_POST['client_id'])){
+									if($app->secret == $_POST['client_secret']){
+										$app->session->renew();
+										print(json_encode(['status' => 200, 'access_token' => $app->session->token]));
+									}else{
+										http_response_code(403);
+										print(json_encode(['status' => 403, 'desc' => 'Client secret doesn\'t match.']));
+									}
+								}else{
+									http_response_code(403);
+									print(json_encode(['status' => 403, 'desc' => 'Client id doesn\'t match.']));
+								}
+							}else{
+								http_response_code(403);
+								print(json_encode(['status' => 403, 'desc' => 'Auth code not found or expired.', 'result'=>$result]));
+							}
+						}else{
+							http_response_code(400);
+							print(json_encode(['status' => 400, 'desc' => 'Invalid request.']));
+						}
+					break;
+					case 'revoke':
+						if($app){
+							$app->session->mysql_delete();
+							print(json_encode(['status' => 200, 'desc' => 'App session revoked successfully.']));
+						}
 					break;
 					default:
 						http_response_code(404);
-						print(json_encode(['status' => 404, 'desc' => 'Unrecognized command.']));
+						print(json_encode(['status' => 404, 'desc' => 'Unrecognized command.', 'param' => $params[1]]));
 				}
 			}else{
 				http_response_code(404);
