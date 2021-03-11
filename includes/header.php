@@ -8,10 +8,11 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
 	<title><?php if(isset($title)) echo "$title - "; ?>Passport</title>
 	<meta name="description" content="Manage your passport account for Yiays.com projects like the blog, MemeDB and PukekoHost.">
 	
-	<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
 	<link rel="manifest" href="/site.webmanifest">
+	<meta name="theme-color" content="#353535">
 	
 	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
 	<link rel="stylesheet" href="/css/style.css?v=85">
