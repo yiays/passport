@@ -1,9 +1,9 @@
 <?php
 namespace passport;
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.conn.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/includes/util.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/api/models/passport.php');
+require_once(__DIR__.'/../../passport.conn.php');
+require_once(__DIR__.'/../includes/util.php');
+require_once(__DIR__.'/models/passport.php');
 
 function create_token($uid, $desc=null){
 	//Gives a user access to their account for this device. Should only be called if the password has already been verified.

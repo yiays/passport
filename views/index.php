@@ -56,5 +56,5 @@ foreach($services as $servicename => $service){
 echo "</div>";
 
 require('includes/footer.php');
-$conn->close();
+$passportconn->close();
 ?>

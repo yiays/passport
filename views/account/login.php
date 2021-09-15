@@ -45,5 +45,5 @@ foreach($services as $servicename => $service){
 	";
 }
 require_once('includes/footer.php');
-$conn->close();
+$passportconn->close();
 ?>

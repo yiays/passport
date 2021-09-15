@@ -117,5 +117,5 @@ echo '
 	</table>';
 
 require_once('includes/footer.php');
-$conn->close();
+$passportconn->close();
 ?>

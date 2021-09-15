@@ -174,5 +174,5 @@ if(count($params)>0){
 	print(json_encode(['status' => 200, 'desc' => 'Passport API']));
 }
 
-$conn->close();
+$passportconn->close();
 ?>

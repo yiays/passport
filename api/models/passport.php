@@ -1,18 +1,17 @@
 <?php
 namespace passport;
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.conn.php'); // $conn: DB Connection Object
-require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.discord.php'); // DISCORD_CLIENT_ID: string, DISCORD_CLIENT_SECRET: string
-require_once($_SERVER['DOCUMENT_ROOT'].'/../passport.google.php'); // GOOGLE_CLIENT_ID: string, GOOGLE_CLIENT_SECRET: string
+require_once(__DIR__.'/../../../passport.conn.php'); // $passportconn: DB Connection Object
+//require_once(__DIR__.'/../../../passport.discord.php'); // DISCORD_CLIENT_ID: string, DISCORD_CLIENT_SECRET: string
+//require_once(__DIR__.'/../../../passport.google.php'); // GOOGLE_CLIENT_ID: string, GOOGLE_CLIENT_SECRET: string
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/includes/util.php');
+require_once(__DIR__.'/../../includes/util.php');
 
 $services = [];
 $services['discord'] = new Service("Discord", "/img/icons/discord.svg", "#7289DA", "https://discordapp.com/api", "../passport.discord.php");
 $services['google'] = new Service("Google", "/img/icons/google.svg", "#e0e0e0", "https://www.googleapis.com", "../passport.google.php");
 
 class User {
-	/*
 	public int $id;
 	public string $username;
 	public Session $session;
@@ -23,17 +22,6 @@ class User {
 	public Email $email;
 	public bool $admin;
 	public bool $banned;
-	*/
-	public $id;
-	public $username;
-	public $session;
-	public $sessions;
-	public $services;
-	public $authapps;
-	public $pfp;
-	public $email;
-	public $admin;
-	public $banned;
 	
 	function __construct($id)
 	{
@@ -41,9 +29,9 @@ class User {
 	}
 	
 	function fetch(){
-		global $conn;
+		global $passportconn;
 		
-		$result = $conn->query("SELECT * FROM user WHERE Id = $this->id");
+		$result = $passportconn->query("SELECT * FROM user WHERE Id = $this->id");
 		if($result){
 			if($result->num_rows == 1){
 				$this->setup($result->fetch_assoc());
@@ -51,7 +39,7 @@ class User {
 				return false;
 			}
 		}else{
-			throw new \Exception("Failed to fetch user; $conn->error");
+			throw new \Exception("Failed to fetch user; $passportconn->error");
 			return false;
 		}
 	}
@@ -74,10 +62,10 @@ class User {
 	}
 	
 	function getservices(){
-		global $conn;
+		global $passportconn;
 		
 		$this->services = [];
-		$result = $conn->query("SELECT * FROM linked_service WHERE UserId = $this->id");
+		$result = $passportconn->query("SELECT * FROM linked_service WHERE UserId = $this->id");
 		if($result){
 			while($row = $result->fetch_assoc()){
 				// Create specialized object depending on platform
@@ -106,19 +94,19 @@ class User {
 				$this->services[$row['Platform']] = $service;
 			}
 		}else{
-			throw new \Exception("Failed to fetch user services; $conn->error");
+			throw new \Exception("Failed to fetch user services; $passportconn->error");
 			return false;
 		}
 		return $this->services;
 	}
 	
 	function getsessions(){
-		global $conn;
+		global $passportconn;
 		
 		$this->sessions = [];
-		$result = $conn->query("SELECT * FROM session WHERE UserId = $this->id ORDER BY Expiry DESC");
+		$result = $passportconn->query("SELECT * FROM session WHERE UserId = $this->id ORDER BY Expiry DESC");
 		if(!$result){
-			throw new \Exception("Failed to fetch user sessions; $conn->error");
+			throw new \Exception("Failed to fetch user sessions; $passportconn->error");
 			return false;
 		}
 		while($row = $result->fetch_assoc()){
@@ -128,12 +116,12 @@ class User {
 	}
 	
 	function getauthapps(){
-		global $conn;
+		global $passportconn;
 		
 		$this->authapps = [];
-		$result = $conn->query("SELECT * FROM auth_app WHERE UserId = $this->id ORDER BY Expiry ASC");
+		$result = $passportconn->query("SELECT * FROM auth_app WHERE UserId = $this->id ORDER BY Expiry ASC");
 		if(!$result){
-			throw new \Exception("Failed to fetch user's authorized apps; $conn->error");
+			throw new \Exception("Failed to fetch user's authorized apps; $passportconn->error");
 			return false;
 		}
 		while($row = $result->fetch_assoc()){
@@ -154,11 +142,11 @@ class Session {
 	
 	function __construct($token, $uid=null, $desc=null, $expiry=null)
 	{
-		global $conn;
+		global $passportconn;
 		
-		$this->token = is_null($token)?$this->generate_token($this->TOKEN_LEN):$conn->escape_string($token);
+		$this->token = is_null($token)?$this->generate_token($this->TOKEN_LEN):$passportconn->escape_string($token);
 		$this->uid = is_null($uid)?null:intval($uid);
-		$this->desc = is_null($desc)?$this->generate_desc():$conn->escape_string($desc);
+		$this->desc = is_null($desc)?$this->generate_desc():$passportconn->escape_string($desc);
 		$this->expiry = is_null($expiry)?$this->generate_expiry($this->EXPIRY_LEN):strtotime($expiry);
 	}
 	
@@ -181,12 +169,12 @@ class Session {
 	// High level functions
 	function fetch(){
 		// Gets extra session information and the associated user
-		global $conn;
+		global $passportconn;
 		
-		$result = $conn->query("SELECT Description,Expiry,user.* FROM session LEFT JOIN user ON session.UserId = user.Id WHERE SessionId = \"{$this->token}\" AND Expiry > CURRENT_TIMESTAMP()");
+		$result = $passportconn->query("SELECT Description,Expiry,user.* FROM session LEFT JOIN user ON session.UserId = user.Id WHERE SessionId = \"{$this->token}\" AND Expiry > CURRENT_TIMESTAMP()");
 		
 		if(!$result){
-			throw new \Exception("Failed to restore login data from token; $conn->error");
+			throw new \Exception("Failed to restore login data from token; $passportconn->error");
 			return false;
 		}
 		if($result->num_rows != 1) return false;
@@ -209,9 +197,9 @@ class Session {
 		$this->cookie_store();
 	}
 	function rename($name){
-		global $conn;
+		global $passportconn;
 		
-		$this->desc = $conn->escape_string($name);
+		$this->desc = $passportconn->escape_string($name);
 		$this->mysql_update();
 	}
 	function renew(){
@@ -222,34 +210,34 @@ class Session {
 	
 	// Functions for storing tokens
 	function mysql_insert(){
-		global $conn;
+		global $passportconn;
 		
 		$expiry = date('Y-m-d H:i:s', $this->expiry);
-		$result = $conn->query("INSERT INTO session(SessionId, UserId, Description, Expiry) VALUES(\"$this->token\", $this->uid, \"$this->desc\", \"$expiry\")");
+		$result = $passportconn->query("INSERT INTO session(SessionId, UserId, Description, Expiry) VALUES(\"$this->token\", $this->uid, \"$this->desc\", \"$expiry\")");
 		if(!$result){
-			throw new \Exception("Failed to store token; $conn->error");
+			throw new \Exception("Failed to store token; $passportconn->error");
 		}else{
 			return $this;
 		}
 	}
 	function mysql_update(){
-		global $conn;
+		global $passportconn;
 		
 		$expiry = date('Y-m-d H:i:s', $this->expiry);
-		$result = $conn->query("UPDATE session SET Description = \"$this->desc\", Expiry = \"$expiry\" WHERE SessionId = \"$this->token\"");
+		$result = $passportconn->query("UPDATE session SET Description = \"$this->desc\", Expiry = \"$expiry\" WHERE SessionId = \"$this->token\"");
 		if(!$result){
-			throw new \Exception("Failed to update stored token; $conn->error");
+			throw new \Exception("Failed to update stored token; $passportconn->error");
 			return null;
 		}else{
 			return $this;
 		}
 	}
 	function mysql_delete(){
-		global $conn;
+		global $passportconn;
 		
-		$result = $conn->query("DELETE FROM session WHERE SessionId = \"$this->token\"");
+		$result = $passportconn->query("DELETE FROM session WHERE SessionId = \"$this->token\"");
 		if(!$result){
-			throw new \Exception("Failed to remove stored token; $conn->error");
+			throw new \Exception("Failed to remove stored token; $passportconn->error");
 			return false;
 		}
 		return true;
@@ -275,10 +263,10 @@ class AppSession extends Session {
 	
 	function __construct($token=null, $uid=null, $appid=null, $authcode=null, $expiry=null)
 	{
-		global $conn;
+		global $passportconn;
 		
 		$this->on_db = is_null($token)?false:true;
-		$this->token = is_null($token)?$this->generate_token($this->TOKEN_LEN):$conn->escape_string($token);
+		$this->token = is_null($token)?$this->generate_token($this->TOKEN_LEN):$passportconn->escape_string($token);
 		$this->uid = is_null($uid)?null:intval($uid);
 		$this->appid = is_null($appid)?null:intval($appid);
 		$this->authcode = is_null($authcode)?null:intval($authcode);
@@ -293,7 +281,7 @@ class AppSession extends Session {
 	// High level functions
 	function fetch(){
 		// Gets extra app session information and the associated app
-		global $conn;
+		global $passportconn;
 		
 		if($this->on_db){
 			$verificationmethod = "SessionId = \"{$this->token}\"";
@@ -301,10 +289,10 @@ class AppSession extends Session {
 			$verificationmethod = "AuthCode = \"{$this->authcode}\"";
 		}
 		
-		$result = $conn->query("SELECT Expiry,AppId,UserId,application.* FROM auth_app LEFT JOIN application ON auth_app.AppId = application.Id WHERE $verificationmethod AND Expiry > CURRENT_TIMESTAMP()");
+		$result = $passportconn->query("SELECT Expiry,AppId,UserId,application.* FROM auth_app LEFT JOIN application ON auth_app.AppId = application.Id WHERE $verificationmethod AND Expiry > CURRENT_TIMESTAMP()");
 		
 		if(!$result){
-			throw new \Exception("Failed to restore login data from token; $conn->error");
+			throw new \Exception("Failed to restore login data from token; $passportconn->error");
 			return false;
 		}
 		if($result->num_rows != 1) return false;
@@ -331,34 +319,34 @@ class AppSession extends Session {
 	
 	// Functions for storing tokens
 	function mysql_insert(){
-		global $conn;
+		global $passportconn;
 		
 		$expiry = date('Y-m-d H:i:s', $this->expiry);
-		$result = $conn->query("INSERT INTO auth_app(SessionId, AppId, UserId, AuthCode, Expiry) VALUES(\"$this->token\", $this->appid, $this->uid, $this->authcode, \"$expiry\")");
+		$result = $passportconn->query("INSERT INTO auth_app(SessionId, AppId, UserId, AuthCode, Expiry) VALUES(\"$this->token\", $this->appid, $this->uid, $this->authcode, \"$expiry\")");
 		if(!$result){
-			throw new \Exception("Failed to store token; $conn->error");
+			throw new \Exception("Failed to store token; $passportconn->error");
 		}else{
 			return $this;
 		}
 	}
 	function mysql_update(){
-		global $conn;
+		global $passportconn;
 		
 		$expiry = date('Y-m-d H:i:s', $this->expiry);
-		$result = $conn->query("UPDATE auth_app SET Expiry = \"$expiry\" WHERE SessionId = \"$this->token\"");
+		$result = $passportconn->query("UPDATE auth_app SET Expiry = \"$expiry\" WHERE SessionId = \"$this->token\"");
 		if(!$result){
-			throw new \Exception("Failed to update stored token; $conn->error");
+			throw new \Exception("Failed to update stored token; $passportconn->error");
 			return null;
 		}else{
 			return $this;
 		}
 	}
 	function mysql_delete(){
-		global $conn;
+		global $passportconn;
 		
-		$result = $conn->query("DELETE FROM auth_app WHERE SessionId = \"$this->token\"");
+		$result = $passportconn->query("DELETE FROM auth_app WHERE SessionId = \"$this->token\"");
 		if(!$result){
-			throw new \Exception("Failed to remove stored token; $conn->error");
+			throw new \Exception("Failed to remove stored token; $passportconn->error");
 			return false;
 		}
 		return true;
@@ -369,18 +357,11 @@ class AppSession extends Session {
 }
 
 class ServiceUser {
-	/*
 	public int $id;
 	public string $name;
 	public string $pfp;
 	public string $email;
 	public string $token;
-	*/
-	public $id;
-	public $name;
-	public $pfp;
-	public $email;
-	public $token;
 	
 	//public bool $activelink = false;
 	public $activelink = false;
@@ -395,12 +376,8 @@ class ServiceUser {
 }
 
 class DiscordUser extends ServiceUser {
-	/*
 	public string $username;
 	public string $discriminator;
-	*/
-	public $username;
-	public $discriminator;
 	
 	function get(){
 		//TODO
@@ -422,14 +399,9 @@ class GoogleUser extends ServiceUser {
 }
 
 class Email {
-	/*
 	public string $address;
-	public string $token;
+	public ?string $token;
 	public bool $verified;
-	*/
-	public $address;
-	public $token;
-	public $verified;
 	
 	function __construct($address, $token, $verified)
 	{
@@ -444,18 +416,11 @@ class Email {
 }
 
 class Service {
-	/*
 	public string $name;
 	public string $icon;
+	public string $theme_color;
 	public string $api_url;
 	public string $secret_file;
-	*/
-	
-	public $name;
-	public $icon;
-	public $theme_color;
-	public $api_url;
-	public $secret_file;
 	
 	function __construct($name, $icon, $theme_color, $api_url, $secret_file){
 		$this->name = $name;
@@ -591,10 +556,10 @@ class InvalidApplication extends Application {
 }
 
 function getApplications($hidden=false){
-	global $conn;
-	$result = $conn->query('SELECT * FROM application' . ($hidden?'':' WHERE Hidden = FALSE'));
+	global $passportconn;
+	$result = $passportconn->query('SELECT * FROM application' . ($hidden?'':' WHERE Hidden = FALSE'));
 	if(!$result){
-		throw new \Exception("Failed to get list of applications; $conn->error");
+		throw new \Exception("Failed to get list of applications; $passportconn->error");
 		return [];
 	}
 	$applications = [];
@@ -606,10 +571,10 @@ function getApplications($hidden=false){
 	return $applications;
 }
 function getApplication($id){
-	global $conn;
-	$result = $conn->query('SELECT * FROM application WHERE Id = ' . $conn->escape_string($id));
+	global $passportconn;
+	$result = $passportconn->query('SELECT * FROM application WHERE Id = ' . $passportconn->escape_string($id));
 	if(!$result){
-		throw new \Exception("Failed to get list of applications; $conn->error");
+		throw new \Exception("Failed to get list of applications; $passportconn->error");
 		return null;
 	}
 	$row = $result->fetch_assoc();
@@ -619,12 +584,12 @@ function getApplication($id){
 	return $app;
 }
 function getApplicationFromData($data){
-	global $conn;
+	global $passportconn;
 	if(!isset($data['id']) || !isset($data['redirect']) || !is_numeric($data['id'])){
 		return new InvalidApplication();
 	}
 	
-	$result = $conn->query("SELECT * FROM application WHERE Id = $data[id]");
+	$result = $passportconn->query("SELECT * FROM application WHERE Id = $data[id]");
 	if(!$result || $result->num_rows == 0){
 		return new InvalidApplication();
 	}

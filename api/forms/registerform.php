@@ -18,10 +18,10 @@ $registerform->buttons []= new FormButton('submit', 'Register');
 //Define form rules
 $registerform->rules []= function($data) {
     //Ensure that the username is unique before registration
-    global $conn;
+    global $passportconn;
 
-    $username = $conn->escape_string($data['username']);
-    $result = $conn->query("SELECT Username FROM user WHERE Username = \"$username\"");
+    $username = $passportconn->escape_string($data['username']);
+    $result = $passportconn->query("SELECT Username FROM user WHERE Username = \"$username\"");
     if(!$result){
         return new FormValidationResult(false, 'Failed to check if username is unique.');
     }
@@ -33,10 +33,10 @@ $registerform->rules []= function($data) {
 
 $registerform->rules []= function($data){
     //Ensure that the email is unique before registration
-    global $conn;
+    global $passportconn;
 
-    $email = $conn->escape_string($data['email']);
-    $result = $conn->query("SELECT Email FROM user WHERE Email = \"$email\"");
+    $email = $passportconn->escape_string($data['email']);
+    $result = $passportconn->query("SELECT Email FROM user WHERE Email = \"$email\"");
     if(!$result){
         return new FormValidationResult(false, 'Failed to check if email is unique.');
     }
@@ -47,19 +47,19 @@ $registerform->rules []= function($data){
 };
 
 $registerform->submit = function($data){
-    global $conn;
+    global $passportconn;
     
-    $username = $conn->escape_string($data['username']);
-    $password = $conn->escape_string(password_hash($data['password'], PASSWORD_DEFAULT, ['cost' => 9]));
-    $email = $conn->escape_string($data['email']);
-    $result = $conn->query("INSERT INTO user(Username,Password,Email) VALUES(\"$username\",\"$password\",\"$email\")");
+    $username = $passportconn->escape_string($data['username']);
+    $password = $passportconn->escape_string(password_hash($data['password'], PASSWORD_DEFAULT, ['cost' => 9]));
+    $email = $passportconn->escape_string($data['email']);
+    $result = $passportconn->query("INSERT INTO user(Username,Password,Email) VALUES(\"$username\",\"$password\",\"$email\")");
     if(!$result){
-        return "Failed to register new account! $conn->error";
+        return "Failed to register new account! $passportconn->error";
     }
     
-    $result = $conn->query("SELECT LAST_INSERT_ID()");
+    $result = $passportconn->query("SELECT LAST_INSERT_ID()");
     if(!$result){
-        return "Failed to get new account data! $conn->error";
+        return "Failed to get new account data! $passportconn->error";
     }
     
     $row = $result->fetch_row();

@@ -21,10 +21,10 @@ $loginform->buttons []= new FormButton('submit', 'Login');
 //Define form rules
 $loginform->rules []= function($data) {
     //Ensure that the username exists
-    global $conn;
+    global $passportconn;
 
-    $username = $conn->escape_string($data['username']);
-    $result = $conn->query("SELECT username FROM user WHERE username = \"$username\"");
+    $username = $passportconn->escape_string($data['username']);
+    $result = $passportconn->query("SELECT username FROM user WHERE username = \"$username\"");
     if(!$result){
         return new FormValidationResult(false, 'Failed to verify login information.');
     }
@@ -36,10 +36,10 @@ $loginform->rules []= function($data) {
 
 $loginform->rules []= function($data){
     //Ensure that the password matches
-    global $conn;
+    global $passportconn;
 
-    $username = $conn->escape_string($data['username']);
-    $result = $conn->query("SELECT Id,Password FROM user WHERE username = \"$username\"");
+    $username = $passportconn->escape_string($data['username']);
+    $result = $passportconn->query("SELECT Id,Password FROM user WHERE username = \"$username\"");
     if(!$result){
         return new FormValidationResult(false, 'Failed to verify login information.');
     }
