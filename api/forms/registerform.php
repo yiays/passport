@@ -4,7 +4,7 @@ require_once('api/models/forms.php');
 require_once('api/auth.php');
 
 //Create form
-$registerform = new Form('Create your passport', '/account/register', 'POST');
+$registerform = new Form('Create your passport', '/account/register'.(isset($_GET['redirect'])?'?redirect='.urlencode($_GET['redirect']):''), 'POST');
 
 //Define form fields
 $registerform->fields []= new FormField('text', 'username', 'new-username', '', true, false, null, true, 3, 64);
