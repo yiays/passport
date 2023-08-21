@@ -1,6 +1,6 @@
 	</div>
 	<footer>
-		&copy; 2020 Yiays | <a href="/privacy">Privacy</a>
+		&copy; 2023 Yiays
 	</footer>
 	
 	<script src="https://cdn.yiays.com/jquery-3.5.1.min.js"></script>
