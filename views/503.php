@@ -5,7 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Passport is Down</title>
 	<meta name="description" content="Manage your passport account for Yiays.com projects like the blog, MemeDB and PukekoHost.">
-	
+	<meta name="robots" content="noindex">
+
 	<link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
