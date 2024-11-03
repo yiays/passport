@@ -1,5 +1,4 @@
 import { Resend } from "resend";
-import { Index } from "./views/index";
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {
@@ -18,7 +17,5 @@ export default {
 
     return Response.json({ data, error });
 		*/
-
-		return new Response(Index(), {headers: {'content-type': 'text/html;charset=UTF-8'}});
   },
 } satisfies ExportedHandler<Env>;

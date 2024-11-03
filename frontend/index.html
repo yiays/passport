@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passport</title>
+	<meta name="description" content="Manage your passport account for Yiays.com projects like the blog, MemeDB and PukekoHost.">
+	<meta name="theme-color" content="#353535">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+	<header>
+		<div class="icons">
+			<img src="/img/icons/passport.svg" width="256" height="256" alt="Logo for Passport" title="Passport">
+		</div>
+		<a href="/"><h1>Passport</h1></a>
+		<p style="font-size: 1.1em;"><b>Passport gives you one account for all projects on Yiays.com!</b></p>
+    <div class="icons icons-mini">
+      <img src="/img/icons/yiays.svg" alt="Icon for Yiays.com" width="256" height="256" title="Yiays.com">
+      <img src="/img/icons/meme.svg" alt="Icon for MemeDB" width="256" height="256" title="MemeDB">
+      <img src="/img/icons/merely.svg" alt="Icon for Merely Services" width="256" height="256" title="Merely Services">
+    </div>
+		<div class="header-bg">
+			<div class="header-bg-pan">
+				<img src="//cdn.yiays.com/passport/yiays.jpg?v=1" width="185" height="100" alt="Yiays.com Preview">
+				<img src="//cdn.yiays.com/passport/meme.jpg?v=1" width="185" height="100" alt="MemeDB Preview">
+				<img src="//cdn.yiays.com/passport/merely.jpg?v=1" width="185" height="100" alt="Merely Services Preview">
+				<img src="//cdn.yiays.com/passport/pukeko.jpg?v=1" width="185" height="100" alt="PukekoHost Preview">
+			</div>
+		</div>
+  </header>
+  <div class="wrapper">
+    <p style="text-align:center;">
+      Choose the method you would like to use to login or register.
+    </p>
+    <div class="tiles">
+      <div class="tile">
+        <a href="#" class="tile-cover" data-cancel style="background-color:#666;">
+          <i>Authenticate by email</i>
+          <h2>Passwordless</h2>
+        </a>
+        <div class="tile-content">
+          <a href="" data-close>← Back</a>
+          <h2>Passwordless Email Authentication</h2>
+          <form action="#" target="/email-auth">
+            <label for="pless-email">Email address:</label>
+            <input id="pless-email" type="email" placeholder="example@example.com" autofocus>
+            <button type="submit">Login / Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+	<footer>
+		&copy; 2023 Yiays
+	</footer>
+	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/ui.js"></script>
+</body>
+</html>
