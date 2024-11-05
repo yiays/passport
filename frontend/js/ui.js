@@ -1,53 +1,60 @@
-$('.tile-cover').on('click', function(e){
+$('.tile-cover').on('click', (e) => {
 	$('.tile.active').removeClass('active');
-	$(this).parent().addClass('active');
-	setTimeout(function(e){
-		e.focus();
-	}, 100, $(this).parent().find('input[autofocus]').get(0));
+	$(e.target).parent().addClass('active');
+	setTimeout((element) => {
+		element.focus();
+	}, 100, $(e.target).parent().find('input[autofocus]').get(0));
 });
 
-$('.tile-content *[data-close]').on('click', function(e){
+$('.tile-content *[data-close]').on('click', (e) => {
 	e.stopImmediatePropagation();
 	e.preventDefault();
-	$(this).parents('.tile').removeClass('active');
+	$(e.target).parents('.tile').removeClass('active');
 	return false;
 });
 
-$('button[data-cancel]').on('click', function(e){
+$('button[data-cancel]').on('click', (e) => {
 	history.back();
 });
 
-$('a[data-cancel]').on('click', function(e){
+$('a[data-cancel]').on('click', (e) => {
 	e.preventDefault();
 	return false;
 });
 
-$('button[data-href]').on('click', function(e){
-	window.location = this.dataset.href;
+$('button[data-href]').on('click', (e) => {
+	window.location = e.target.dataset.href;
 });
 
-$('button[data-target]').on('click', function(e){
-	var target = this.dataset.target;
-	var method = this.dataset.method || 'GET';
-	var params = this.dataset.params || '{}';
-	var success = this.dataset.success || 'return';
-	params = JSON.parse(params);
-	for (const key in params) {
-		if(params[key] == '?'){
-			params[key] = prompt(`Please provide a ${key}.`, '');
-		}
-	}
-	$.ajax(target, {
-		method: method,
-		data: params,
-		success: function(data){
-			alert(data.desc);
-			if(data.status == 200){
-				eval(success);
+$('form').on('submit', function(e) {
+	e.preventDefault();
+	const form = e.target;
+	if($(form).find('input[type=submit]').prop('disabled'))
+		return;
+	$(form).find('.success,.error').remove();
+	$(form).find('input').prop('disabled', true);
+	if(form.reportValidity()) {
+		$.ajax(form.action, {
+			method: form.method,
+			data: new FormData(form),
+			processData: false,
+			contentType: false,
+			statusCode: {
+				400: () => {
+					alert("This login method isn't working correctly right now. Please try again later.");
+				}
+			},
+			success: (data) => {
+				if(data.success)
+					$(form).append(`<p class=success>${data.message}</p>`);
+				else {
+					$(form).append(`<p class=error>${data.message}</p>`);
+					setTimeout(() => {
+						$(form).find('input').prop('disabled', false);
+					}, 1000);
+				}
 			}
-		},
-		error: function(e){
-			alert("Failed to run action. Please check your network.");
-		}
-	});
+		})
+	}
+	return false;
 });
