@@ -57,6 +57,18 @@ input:not([type=submit]){
 	width: 100%;
 	box-sizing: border-box;
 }
+.radio-group {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 0.5em;
+}
+.radio-group input[type=radio] {
+	width: 1em;
+	margin: 0 0.2em;
+}
+.radio-group label {
+	flex-grow: 1;
+}
 
 /*
 	Page Style
@@ -101,15 +113,16 @@ header h1{
 	filter: blur(5px);
 }
 .header-bg>.header-bg-pan{
+	display: flex;
 	position: relative;
-	width: auto;
+	width: fit-content;
 	height: 100%;
 	white-space: nowrap;
 	animation: 15s linear header-bg-pan infinite;
 }
 @keyframes header-bg-pan{
 	0% {
-		left: 0;
+		translate: 0;
 		filter: brightness(0);
 	}
 	10%{
@@ -119,7 +132,7 @@ header h1{
 		filter: brightness(0.5);
 	}
 	99% {
-		left: calc(100vw - (706px * 4));
+		translate: calc(100vw - 100%);
 		filter: brightness(0);
 	}
 	100%{

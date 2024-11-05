@@ -13,7 +13,7 @@
 	<link rel="manifest" href="/site.webmanifest">
 
 	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=1.2">
 </head>
 <body>
 	<header>
@@ -48,11 +48,19 @@
         </a>
         <div class="tile-content">
           <a href="" data-close>← Back</a>
-          <h2>Passwordless Email Authentication</h2>
-          <form action="#" target="/email-auth">
+          <h2>Email Authentication</h2>
+          <div class="radio-group">
+            <input type="radio" name="mode" id="pless-mode-login" value="login" oninput="plessLogin()" autofocus>
+            <label for="pless-mode-login">Login</label>
+            <input type="radio" name="mode" id="pless-mode-register" value="register" oninput="plessRegister()">
+            <label for="pless-mode-register">Register</label>
+          </div>
+          <form action="#" target="/email-auth" id="pless" style="display:none;">
             <label for="pless-email">Email address:</label>
-            <input id="pless-email" type="email" placeholder="example@example.com" autofocus>
-            <button type="submit">Login / Register</button>
+            <input id="pless-email" type="email" placeholder="example@example.com">
+            <label for="pless-username">Username:</label>
+            <input id="pless-username" type="username" placeholder="username">
+            <button id="pless-submit" type="submit">Login / Register</button>
           </form>
         </div>
       </div>
@@ -63,5 +71,25 @@
 	</footer>
 	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
   <script src="/js/ui.js"></script>
+  <script>
+    let usernameLabel, usernameInput;
+
+    function plessLogin() {
+      $('#pless').show();
+      usernameLabel = $('label[for=pless-username]').detach();
+      usernameInput = $('#pless-username').detach();
+      $('#pless-submit').text('Login');
+      $('#pless-email').focus();
+    }
+    function plessRegister() {
+      $('#pless').show();
+      if(usernameLabel) {
+        usernameLabel.insertAfter('#pless-email');
+        usernameInput.insertBefore('#pless-submit');
+      }
+      $('#pless-submit').text('Register');
+      $('#pless-email').focus();
+    }
+  </script>
 </body>
 </html>
