@@ -27,6 +27,15 @@ export async function getProfileByUsername(env:Env, username:string): Promise<Pr
   }
   return false;
 }
+export async function getProfileByEmail(env:Env, email:string): Promise<Profile|false> {
+  const profiles = await getProfiles(env);
+  for (const username in profiles) {
+    if (profiles[username].email.toLowerCase() == email.toLowerCase()) {
+      return profiles[username];
+    }
+  }
+  return false;
+}
 
 interface CheckOptions {
   rulesonly?:boolean,

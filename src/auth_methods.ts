@@ -4,7 +4,7 @@
 
 import { Resend } from "resend";
 import { nanoid } from "nanoid";
-import { checkEmail, checkUsername, getProfileByUsername, getProfiles, Profile } from "./account_controls";
+import { checkEmail, checkUsername, getProfileByEmail, getProfileByUsername, getProfiles, Profile } from "./account_controls";
 
 const unknown_error = "An unknown error was encountered. Please try again later.";
 
@@ -124,9 +124,9 @@ export class MagicEmailAuth extends GenericAuth {
       if(challengeResult) return Response.json({success:true, message:this.challenge_instructions});
       return Response.json({success:false, message:unknown_error});
     }
-    if(typeof username == 'string') {
+    if(typeof email == 'string') {
       // Login
-      const result = await getProfileByUsername(env, username);
+      const result = await getProfileByEmail(env, email);
       if(result == false) return Response.json({success:false, message:"Account not found."});
       const challengeResult = await this.challenge(env, result.username, result.email, false);
       if(challengeResult) return Response.json({success:true, message:this.challenge_instructions});
