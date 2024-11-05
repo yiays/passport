@@ -13,7 +13,7 @@
 	<link rel="manifest" href="/site.webmanifest">
 
 	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
-  <link rel="stylesheet" href="/css/style.css?v=1.2">
+  <link rel="stylesheet" href="/css/style.css?v=1.3">
 </head>
 <body>
 	<header>
@@ -55,12 +55,14 @@
             <input type="radio" name="mode" id="pless-mode-register" value="register" oninput="plessRegister()">
             <label for="pless-mode-register">Register</label>
           </div>
-          <form action="#" target="/email-auth" id="pless" style="display:none;">
+          <form action="#" target="/api/email/challenge" id="pless" style="display:none;">
             <label for="pless-email">Email address:</label>
             <input id="pless-email" type="email" placeholder="example@example.com">
             <label for="pless-username">Username:</label>
             <input id="pless-username" type="username" placeholder="username">
-            <button id="pless-submit" type="submit">Login / Register</button>
+            <div style="text-align: right;">
+              <button id="pless-submit" type="submit">Login / Register</button>
+            </div>
           </form>
         </div>
       </div>
