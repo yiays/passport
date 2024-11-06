@@ -13,7 +13,7 @@
 	<link rel="manifest" href="/site.webmanifest">
 
 	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
-  <link rel="stylesheet" href="/css/style.css?v=2.13">
+  <link rel="stylesheet" href="/css/style.css?v=3">
 </head>
 <body>
 	<header>
@@ -68,7 +68,7 @@
             <label for="pless-email">Email address:</label>
             <input id="pless-email" type="email" name="email" placeholder="example@example.com" required minlength="5" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
             <label for="pless-username">Username:</label>
-            <input id="pless-username" type="username" name="username" placeholder="username" required minlength="3" maxlength="15" pattern="[\w\d]">
+            <input id="pless-username" type="username" name="username" placeholder="username" required minlength="3" maxlength="15" pattern="[\w\d]+">
             <div style="text-align: right;">
               <input id="pless-submit" type="submit"></input>
             </div>
@@ -81,8 +81,21 @@
 		&copy; 2024 Yiays
 	</footer>
 	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
-  <script src="/js/ui.js?v=1.11"></script>
+  <script src="/js/passport.js?v=1.7"></script>
+  <script src="/js/ui.js?v=1.12"></script>
   <script>
+    passport_getProfile((profile) => {
+      if(profile != false)
+        window.location = '/profile/';
+    });
+    if(passportBroadcast) {
+      passportBroadcast.onmessage = (ev) => {
+        console.log(ev.data);
+        if(ev.data.startswith('profile='))
+          window.location = '/profile/';
+      }
+    }
+
     let usernameLabel, usernameInput;
 
     function plessLogin() {
@@ -95,8 +108,8 @@
     function plessRegister() {
       $('#pless').show();
       if(usernameLabel) {
+        usernameInput.insertAfter('#pless-email');
         usernameLabel.insertAfter('#pless-email');
-        usernameInput.insertBefore('#pless-submit');
       }
       $('#pless-submit').attr('value', 'Register');
       $('#pless-email').focus();

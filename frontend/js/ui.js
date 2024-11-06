@@ -31,12 +31,13 @@ $('form').on('submit', function(e) {
 	const form = e.target;
 	if($(form).find('input[type=submit]').prop('disabled'))
 		return;
+	const formData = new FormData(form);
 	$(form).find('.success,.error').remove();
 	$(form).find('input').prop('disabled', true);
 	if(form.reportValidity()) {
 		$.ajax(form.action, {
 			method: form.method,
-			data: new FormData(form),
+			data: formData,
 			processData: false,
 			contentType: false,
 			statusCode: {
@@ -45,16 +46,21 @@ $('form').on('submit', function(e) {
 				}
 			},
 			success: (data) => {
-				if(data.success)
-					$(form).append(`<p class=success>${data.message}</p>`);
+				if(data.success) {
+					const message = data.message || "Logged in successfully";
+					$(form).append(`<span class=success>${message}</span>`);
+					if(data.token) {
+						passport_storeToken(data.token);
+					}
+				}
 				else {
-					$(form).append(`<p class=error>${data.message}</p>`);
+					$(form).append(`<span class=error>${data.message}</span>`);
 					setTimeout(() => {
 						$(form).find('input').prop('disabled', false);
 					}, 1000);
 				}
 			}
-		})
+		});
 	}
 	return false;
 });
