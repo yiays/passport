@@ -152,6 +152,7 @@ export class MagicEmailAuth extends GenericAuth {
         Click the following link (or copy and paste it into your browser) in order to continue signing
         in to Merely Music, MemeDB, or the Yiays.com blog.
       </p>
+      <p><strong>Note: Be sure to open the link in the browser you would like to use.</strong></p>
       <p><a href="${magiclink}">${magiclink}</a></p>
       <p><i>If this wasn't you, you can safely ignore this email.</i></p>`,
 			text: (
