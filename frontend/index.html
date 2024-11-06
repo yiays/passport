@@ -91,7 +91,7 @@
     if(passportBroadcast) {
       passportBroadcast.onmessage = (ev) => {
         console.log(ev.data);
-        if(ev.data.startswith('profile='))
+        if(ev.data.startsWith('profile='))
           window.location = '/profile/';
       }
     }

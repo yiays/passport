@@ -56,7 +56,7 @@
         $('#loading').hide();
         $('#profile').show();
         $('#username').text(profile.username);
-        $('#email').text(profile.email);
+        $('#email').val(profile.email);
         if(profile.verified)
           $('#verified').show();
         else
