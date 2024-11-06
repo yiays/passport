@@ -140,7 +140,7 @@ export class MagicEmailAuth extends GenericAuth {
 
     const partialProfile:Partial<Profile> = {...(register?{username:username}:{}), email:email, verified:true};
 		const magic = await this.create_challenge(env, username, partialProfile);
-    const magiclink = `https://passport.yiays.com/challenge/?mode=email&challenge=${magic}`;
+    const magiclink = `https://passport.yiays.com/challenge/?challenge=${magic}`;
 
     // TODO: rate limit this per client
     const { data, error } = await resend.emails.send({
