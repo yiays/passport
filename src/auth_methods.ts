@@ -43,12 +43,12 @@ export class GenericAuth {
     return nanoid();
   }
 
-  public static async create_session(env:Env, challengeData:ChallengeData):Promise<string> {
+  public static async create_session(env:Env, challengeData:ChallengeData):Promise<{profile:Profile, token:string}> {
     // The client is now trusted, store the token so they can reauth without logging in
     //WARN: This performs up to two write operations, limiting the daily login count to 500-1000
     //WARN: Factor in the delete in verify_challenge and it's 2-3 operaions, 333-500
     let profiles = await getProfiles(env);
-    const profile = profiles[challengeData.username.toLowerCase()];
+    const profile = profiles[challengeData.username.toLowerCase()] || {};
     const newProfile = {...challengeData.partialProfile, ...profile};
     if(JSON.stringify(profile) != JSON.stringify(newProfile)) {
       profiles[challengeData.username.toLowerCase()] = newProfile;
@@ -56,7 +56,7 @@ export class GenericAuth {
     }
     const authkey = `auth_${challengeData.token}`;
     await env.STORE.put(authkey, challengeData.username, {expirationTtl: this.lifetime});
-    return challengeData.token;
+    return {profile: newProfile, token: challengeData.token};
   }
 
   public static async validate_session(env:Env, token:string):Promise<false|string> {
@@ -87,7 +87,7 @@ export class GenericAuth {
     return challenge;
   }
 
-  public static async validate_challenge(env:Env, challenge:string):Promise<false|string> {
+  public static async validate_challenge(env:Env, challenge:string):Promise<false|{profile:Profile, token:string}> {
     // Check the client has passed the challenge
     if(challenge.match(/[A-z0-9_-]{21}/)) {
       const challengekey = `challenge_${challenge}`;
