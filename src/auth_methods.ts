@@ -33,7 +33,7 @@ export class GenericAuth {
       // Validate challenge
       const result = await this.validate_challenge(env, challenge);
       if(result == false) return Response.json({success:false, message:"Challenge failed. Challenges expire after 3 hours."});
-      return Response.json({success:true, token:result});
+      return Response.json({success:true, ...result});
     }
     return new Response('Bad request', {status: 400});
   }
