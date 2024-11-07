@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verification in progress - Passport</title>
+	<meta name="theme-color" content="#353535">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
+  <link rel="stylesheet" href="/css/style.css?v=3">
+</head>
+<body>
+	<header class="header-static">
+    <img src="/img/icons/passport.svg" width="64" height="64" alt="Logo for Passport" title="Passport">
+		<a href="/"><h1>Passport</h1></a>
+  </header>
+  <div class="wrapper">
+    <p id="progress">
+      We're just completing your login. Please give us a moment...
+    </p>
+  </div>
+	<footer>
+		&copy; 2024 Yiays
+	</footer>
+	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/passport.js?v=1.7"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const challenge = params.get('challenge');
+
+    if(!challenge)
+      window.location = '/';
+
+    passport_submitChallenge(challenge, (result) => {
+      if(typeof result == 'string') {
+        document.getElementById('progress').classList.add('error');
+        document.getElementById('progress').textContent = result;
+        return;
+      }
+      window.location = '/profile/';
+    })
+  </script>
+</body>
+</html>

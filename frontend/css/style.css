@@ -35,6 +35,9 @@ table button{
 	margin: 0;
 }
 
+.dim {
+	color: #ccc;
+}
 .sub{
 	font-size: 0.66em;
 	color: #ccc;
@@ -320,12 +323,16 @@ footer{
 	Card Styles
 */
 .card{
+	display: inline-block;
 	margin-top: 2rem;
 	margin-bottom: 2rem;
 	border-radius: 3rem;
 	text-align: left;
 	background: #222;
 	box-shadow: rgba(0,0,0,0.25) 0 0 0.5em;
+}
+.card#profile {
+	max-width: 40em;
 }
 .card>.card-header{
 	padding: 2rem;
