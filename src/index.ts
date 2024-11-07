@@ -3,7 +3,7 @@
 */
 
 import { checkUsername, getProfileByToken } from "./account_controls";
-import { AuthPaths } from "./auth_methods";
+import { AuthPaths, GenericAuth } from "./auth_methods";
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {
@@ -21,9 +21,10 @@ export default {
     if(path == '/') {
       const token = params.get('token');
       if(typeof token == 'string') {
-        const profile = await getProfileByToken(env, token);
-        if(profile === false) return new Response('Token is invalid', {status: 401});
-        return Response.json(profile);
+        const result = await GenericAuth.validate_session(env, token);
+        if(result === false)
+          return new Response('Token is invalid', {status: 401});
+        return Response.json(result);
       }
 
       const username = params.get('username');
@@ -31,8 +32,17 @@ export default {
         return Response.json(checkUsername(env, username));
       
       return new Response('Bad request', {status: 400});
+    }else if(splitPath[1] == 'account'){
+      const token = params.get('token');
+      if(typeof token == 'string') {
+        const profile = await getProfileByToken(env, token);
+        if(profile === false) return new Response('Token is invalid', {status: 401});
+        return Response.json(profile);
+      }
+      
+      return new Response('Bad request', {status: 400});
     }else if(splitPath[1] in AuthPaths){
-      return AuthPaths[splitPath[1]].handler(env, splitPath, params)
+      return AuthPaths[splitPath[1]].handler(env, splitPath, params);
     }else{
       return new Response('File not found', {status:404});
     }
