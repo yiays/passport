@@ -3,7 +3,7 @@
 */
 
 import { Resend } from "resend";
-import { nanoid } from "nanoid";
+import { nanoid, customAlphabet as nanoid_custom } from "nanoid";
 import { checkEmail, checkUsername, getProfileByEmail, getProfileByUsername, getProfiles, Profile } from "./account_controls";
 
 const unknown_error = "An unknown error was encountered. Please try again later.";
@@ -38,8 +38,13 @@ export class GenericAuth {
     return new Response('Bad request', {status: 400});
   }
 
-  private static generate_token():string {
+  static generate_token():string {
     // Generate a unique token for this client session
+    return nanoid();
+  }
+
+  static generate_challenge():string {
+    // Generate a unique challenge ID for this client
     return nanoid();
   }
 
@@ -75,7 +80,7 @@ export class GenericAuth {
 
   public static async create_challenge(env:Env, username:string, profile:Partial<Profile>={}):Promise<string> {
     // The client would like to earn trust, create a temporary token for use in a challenge
-    const challenge = this.generate_token();
+    const challenge = this.generate_challenge();
     const token = this.generate_token();
     const challengekey = `challenge_${challenge}`;
     const challengeData:ChallengeData = {username:username, token:token, partialProfile:profile}
@@ -89,7 +94,7 @@ export class GenericAuth {
 
   public static async validate_challenge(env:Env, challenge:string):Promise<false|{profile:Profile, token:string}> {
     // Check the client has passed the challenge
-    if(challenge.match(/[A-z0-9_-]{21}/)) {
+    if(challenge.match(/[A-z0-9_-]{21}/) || challenge.match(/\d{6}/)) {
       const challengekey = `challenge_${challenge}`;
       const result = await env.STORE.get<ChallengeData>(challengekey, 'json');
       if(result) {
@@ -107,7 +112,7 @@ export class GenericAuth {
 }
 
 export class MagicEmailAuth extends GenericAuth {
-  static challenge_instructions = "You have been sent a validation email. Click the link in the email to continue. Check your spam folder if you can't find it."
+  static challenge_instructions = "You have been sent an email. Click the link in the email to continue. Check your spam folder if you can't find it."
 
   public static async handler(env:Env, splitPath:string[], params:URLSearchParams|FormData):Promise<Response> {
     // Get parameters and decide which stage of authentication we're in
@@ -146,8 +151,11 @@ export class MagicEmailAuth extends GenericAuth {
     const { data, error } = await resend.emails.send({
       from: "Passport for Merely Music, MemeDB, Yiays Blog <passport@yiays.com>",
       to: email,
+      headers: {'X-Entity-Ref-ID': magic},
       subject: "Verify your Passport Account",
-      html: `<h1>Whew, I made it!</h1>
+      html: `
+      <img src="https://passport.yiays.com/img/icons/passport.svg" width="128" height="128" alt="Logo for Passport" title="Passport">
+      <h1>Passport</h1>
       <p>
         Click the following link (or copy and paste it into your browser) in order to continue signing
         in to Merely Music, MemeDB, or the Yiays.com blog.
@@ -171,7 +179,54 @@ export class MagicEmailAuth extends GenericAuth {
   }
 }
 
+export class CodeEmailAuth extends MagicEmailAuth {
+  static challenge_instructions = "You have been sent an email. Enter the code here. Check your spam folder if you can't find it."
+
+  static generate_challenge():string {
+    // Generate a unique challenge ID for this client
+    return nanoid_custom('0123456789', 6)();
+  }
+
+  public static async challenge(env:Env, username:string, email:string, register=false):Promise<boolean> {
+    const resend = new Resend(env.RESEND_KEY);
+
+    const partialProfile:Partial<Profile> = {...(register?{username:username}:{}), email:email, verified:true};
+		const magic = await this.create_challenge(env, username, partialProfile);
+
+    // TODO: rate limit this per client
+    const { data, error } = await resend.emails.send({
+      from: "Passport for Merely Music, MemeDB, Yiays Blog <passport@yiays.com>",
+      to: email,
+      headers: {'X-Entity-Ref-ID': magic},
+      subject: "Verify your Passport Account",
+      html: `
+      <img src="https://passport.yiays.com/img/icons/passport.svg" width="128" height="128" alt="Logo for Passport" title="Passport">
+      <h1>Passport</h1>
+      <blockquote><i>Passport is your account for Merely Music, MemeDB, and the Yiays Blog.</i></blockquote>
+      <p>
+        Here is your verification code;
+      </p>
+      <p style="font-size:3em;background:grey;"><code style="margin:1em;background:lightgrey;color:black;">
+        ${magic}
+      </code></p>
+      <p><i>If this wasn't you, you can safely ignore this email.</i></p>`,
+			text: (
+        "Here is your verification code;\n\n" +
+        `${magic}\n\n` +
+        "If this wasn't you, you can safely ignore this email."
+      )
+    });
+
+    if(error) {
+      console.error(error);
+      return false;
+    }
+    return true;
+  }
+}
+
 export const AuthPaths:{[id:string]:typeof GenericAuth} = {
   'generic': GenericAuth,
-  'email': MagicEmailAuth
+  'email': CodeEmailAuth,
+  'magic': MagicEmailAuth
 }
