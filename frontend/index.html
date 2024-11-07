@@ -73,6 +73,13 @@
               <input id="pless-submit" type="submit"></input>
             </div>
           </form>
+          <form action="/api/generic" method="post" id="pless-stage2" style="display:none;">
+            <label for="pless-code">Verification code:</label>
+            <input id="pless-code" type="text" name="challenge" placeholder="000000" required minlength="6" maxlength="6" pattern="\d+">
+            <div style="text-align: right;">
+              <input id="pless-submit" type="submit"></input>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -82,35 +89,32 @@
 	</footer>
 	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
   <script src="/js/passport.js?v=1.7"></script>
-  <script src="/js/ui.js?v=1.12"></script>
+  <script src="/js/ui.js?v=1.14"></script>
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect') || '/profile/';
+
     passport_getProfile((profile) => {
       if(profile != false)
-        window.location = '/profile/';
+        window.location = redirect;
     });
     if(passportBroadcast) {
       passportBroadcast.onmessage = (ev) => {
         console.log(ev.data);
         if(ev.data.startsWith('profile='))
-          window.location = '/profile/';
+          window.location = redirect;
       }
     }
 
-    let usernameLabel, usernameInput;
-
     function plessLogin() {
       $('#pless').show();
-      usernameLabel = $('label[for=pless-username]').detach();
-      usernameInput = $('#pless-username').detach();
+      $('label[for=pless-username],#pless-username').hide().prop('disabled', true);
       $('#pless-submit').attr('value', 'Login');
       $('#pless-email').focus();
     }
     function plessRegister() {
       $('#pless').show();
-      if(usernameLabel) {
-        usernameInput.insertAfter('#pless-email');
-        usernameLabel.insertAfter('#pless-email');
-      }
+      $('label[for=pless-username],#pless-username').show().prop('disabled', false);
       $('#pless-submit').attr('value', 'Register');
       $('#pless-email').focus();
     }
