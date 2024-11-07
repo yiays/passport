@@ -48,7 +48,7 @@ function passport_getProfile(callback) {
     return callback(JSON.parse(rawprofile));
   }
   const token = document.cookie.split('; ').filter((s) => s.startsWith('_passportToken='))[0].slice(15);
-  $.ajax('/api/', {
+  $.ajax('/api/account/', {
     method: 'get',
     data: `token=${token}`,
     processData: false,
