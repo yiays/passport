@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passport</title>
+	<meta name="description" content="Manage your passport account for Yiays.com projects like the blog, MemeDB and PukekoHost.">
+	<meta name="theme-color" content="#353535">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
+  <link rel="stylesheet" href="/css/style.css?v=3">
+</head>
+<body>
+	<header>
+		<div class="icons">
+			<img src="/img/icons/passport.svg" width="256" height="256" alt="Logo for Passport" title="Passport">
+		</div>
+		<a href="/"><h1>Passport</h1></a>
+		<p style="font-size: 1.1em;"><b>Passport gives you one account for all projects on Yiays.com!</b></p>
+    <div class="icons icons-mini">
+      <a href="https://yiays.com/blog/" target="_blank" class="icon-bundle">
+        <img src="/img/icons/yiays.svg" alt="Icon for Yiays.com" width="256" height="256" title="Yiays.com">
+        <span>Yiays.com</span>
+      </a>
+      <a href="https://meme.yiays.com/" target="_blank" class="icon-bundle">
+        <img src="/img/icons/meme.svg" alt="Icon for MemeDB" width="256" height="256" title="MemeDB">
+        <span>MemeDB</span>
+      </a>
+      <a href="https://merely.yiays.com/music/" target="_blank" class="icon-bundle">
+        <img src="/img/icons/merely.svg" alt="Icon for Merely Services" width="256" height="256" title="Merely Services">
+        <span>Merely Music</span>
+      </a>
+    </div>
+		<div class="header-bg">
+			<div class="header-bg-pan">
+				<img src="//cdn.yiays.com/passport/yiays.jpg?v=1" width="185" height="100" alt="Yiays.com Preview">
+				<img src="//cdn.yiays.com/passport/meme.jpg?v=1" width="185" height="100" alt="MemeDB Preview">
+				<img src="//cdn.yiays.com/passport/merely.jpg?v=1" width="185" height="100" alt="Merely Services Preview">
+				<img src="//cdn.yiays.com/passport/pukeko.jpg?v=1" width="185" height="100" alt="PukekoHost Preview">
+			</div>
+		</div>
+  </header>
+  <div class="wrapper">
+    <p>
+      Choose the method you would like to use to login or register.
+    </p>
+    <div class="tiles">
+      <div class="tile">
+        <a href="#" class="tile-cover" data-cancel style="background-color:#666;">
+          <i>Authenticate by email</i>
+          <h2>Passwordless</h2>
+        </a>
+        <div class="tile-content">
+          <a href="" data-close>← Back</a>
+          <h2>Email Authentication</h2>
+          <div class="radio-group">
+            <input type="radio" name="mode" id="pless-mode-login" value="login" oninput="plessLogin()" autofocus>
+            <label for="pless-mode-login">Login</label>
+            <input type="radio" name="mode" id="pless-mode-register" value="register" oninput="plessRegister()">
+            <label for="pless-mode-register">Register</label>
+          </div>
+          <form action="/api/email" method="post" id="pless" style="display:none;">
+            <label for="pless-email">Email address:</label>
+            <input id="pless-email" type="email" name="email" placeholder="example@example.com" required minlength="5" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
+            <label for="pless-username">Username:</label>
+            <input id="pless-username" type="username" name="username" placeholder="username" required minlength="3" maxlength="15" pattern="[\w\d]+">
+            <div style="text-align: right;">
+              <input id="pless-submit" type="submit"></input>
+            </div>
+          </form>
+          <form action="/api/generic" method="post" id="pless-stage2" style="display:none;">
+            <label for="pless-code">Verification code:</label>
+            <input id="pless-code" type="text" name="challenge" placeholder="000000" required minlength="6" maxlength="6" pattern="\d+">
+            <div style="text-align: right;">
+              <input id="pless-submit" type="submit"></input>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+	<footer>
+		&copy; 2024 Yiays
+	</footer>
+	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/passport.js?v=1.8"></script>
+  <script src="/js/ui.js?v=1.14"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect') || '/profile/';
+
+    passport_getProfile((profile) => {
+      if(profile != false)
+        window.location = redirect;
+    });
+    if(passportBroadcast) {
+      passportBroadcast.onmessage = (ev) => {
+        console.log(ev.data);
+        if(ev.data.startsWith('profile='))
+          window.location = redirect;
+      }
+    }
+
+    function plessLogin() {
+      $('#pless').show();
+      $('label[for=pless-username],#pless-username').hide().prop('disabled', true);
+      $('#pless-submit').attr('value', 'Login');
+      $('#pless-email').focus();
+    }
+    function plessRegister() {
+      $('#pless').show();
+      $('label[for=pless-username],#pless-username').show().prop('disabled', false);
+      $('#pless-submit').attr('value', 'Register');
+      $('#pless-email').focus();
+    }
+  </script>
+</body>
+</html>

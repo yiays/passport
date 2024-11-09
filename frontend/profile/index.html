@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your account - Passport</title>
+	<meta name="theme-color" content="#353535">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<link rel="stylesheet" href="https://cdn.yiays.com/normalize.css">
+  <link rel="stylesheet" href="/css/style.css?v=3">
+</head>
+<body>
+	<header class="header-static">
+    <img src="/img/icons/passport.svg" width="64" height="64" alt="Logo for Passport" title="Passport">
+		<a href="/"><h1>Passport</h1></a>
+  </header>
+  <div class="wrapper">
+    <p id="loading">
+      Fetching your profile details now. Please wait...
+    </p>
+    <div id="profile" class="card" style="display:none;">
+      <div class="card-header">
+        <h2 id="username">Username</h2>
+      </div>
+      <div class="card-featurette">
+        <img src="/img/icons/user.svg" width="256" height="256" alt="Your profile picture" title="Your profile picture">
+      </div>
+      <div class="card-body">
+        <label for="email">Email address:</label>
+        <input type="email" name="email" id="email" placeholder="email@email.com" readonly>
+        <i id="verified">Your email address has been verified.</i>
+        <p style="text-align: right;">
+          <i class="dim">Account editing will be implemented in the future.</i>
+        </p>
+      </div>
+      <div class="card-footer">
+        <button type="button" onclick="passport_clearSession();window.location='/'">Log out</button>
+      </div>
+    </div>
+  </div>
+	<footer>
+		&copy; 2024 Yiays
+	</footer>
+	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/passport.js?v=1.8"></script>
+  <script>
+    passport_getProfile((profile) => {
+      function callback() {
+        if(profile == false)
+          return window.location = '/';
+        $('#loading').hide();
+        $('#profile').show();
+        $('#username').text(profile.username);
+        $('#email').val(profile.email);
+        if(profile.verified)
+          $('#verified').show();
+        else
+          $('#verified').hide();
+      }
+      if(document.readyState == 'complete')
+        callback();
+      else 
+        $(document).ready(callback);
+    });
+  </script>
+</body>
+</html>

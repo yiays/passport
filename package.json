@@ -1,0 +1,29 @@
+{
+  "name": "passport",
+  "version": "0.0.0",
+  "description": "Passport is a single sign on solution for all my projects on *.yiays.com domains. It's being created primarily for use with [Merely Music](https://github.com/MerelyServices/MerelyMusic) and the blog on [Yiays.com](https://github.com/yiays/).",
+  "author": "Yiays",
+  "main": "src/index.ts",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "test": "vitest",
+    "cf-typegen": "wrangler types"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yiays/passport.git"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.5.2",
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "typescript": "^5.5.2",
+    "vitest": "2.0.5",
+    "wrangler": "^3.60.3"
+  },
+  "dependencies": {
+    "nanoid": "^5.0.8",
+    "resend": "^4.0.1-alpha.0"
+  }
+}
