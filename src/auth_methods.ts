@@ -154,7 +154,7 @@ export class MagicEmailAuth extends GenericAuth {
       headers: {'X-Entity-Ref-ID': magic},
       subject: "Verify your Passport Account",
       html: `
-      <img src="https://passport.yiays.com/img/icons/passport.svg" width="128" height="128" alt="Logo for Passport" title="Passport">
+      <img src="https://passport.yiays.com/img/icons/passport.png" width="128" height="128" alt="Logo for Passport" title="Passport">
       <h1>Passport</h1>
       <p>
         Click the following link (or copy and paste it into your browser) in order to continue signing
@@ -200,7 +200,7 @@ export class CodeEmailAuth extends MagicEmailAuth {
       headers: {'X-Entity-Ref-ID': magic},
       subject: "Verify your Passport Account",
       html: `
-      <img src="https://passport.yiays.com/img/icons/passport.svg" width="128" height="128" alt="Logo for Passport" title="Passport">
+      <img src="https://passport.yiays.com/img/icons/passport.png" width="128" height="128" alt="Logo for Passport" title="Passport">
       <h1>Passport</h1>
       <blockquote><i>Passport is your account for Merely Music, MemeDB, and the Yiays Blog.</i></blockquote>
       <p>
