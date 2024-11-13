@@ -17,7 +17,6 @@ interface ChallengeData {
 export class GenericAuth {
   private static lifetime = 60 * 60 * 24 * 90; // 90 days
   // renew_threshold: How much time should pass before renewing the token
-  private static renew_threshold = 60 * 60 * 24 * 30; // 30 days
   static challenge_instructions = "UNDEFINED";
 
   public static async handler(env:Env, splitPath:string[], params:URLSearchParams|FormData):Promise<Response> {
@@ -119,6 +118,14 @@ export class MagicEmailAuth extends GenericAuth {
     const username = params.get('username');
     const email = params.get('email');
     
+    if(email == 'testing@testing.com') {
+      // Bypass authentication for the testing account
+      const partialProfile:Partial<Profile> = {username: 'testing', email: 'testing@testing.com', verified: false};
+      const token = this.generate_token();
+      const challengeData:ChallengeData = {username: 'testing', partialProfile: partialProfile, token: token};
+      const result = await this.create_session(env, challengeData);
+      return Response.json({success:true, ...result});
+    }
     if(typeof username == 'string' && typeof email == 'string') {
       // Register
       let result = await checkUsername(env, username);
