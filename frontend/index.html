@@ -89,10 +89,14 @@
 	</footer>
 	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
   <script src="/js/passport.js?v=1.8"></script>
-  <script src="/js/ui.js?v=1.14"></script>
+  <script src="/js/ui.js?v=2.0"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get('redirect') || '/profile/';
+    redirectParams = {
+      url: params.get('redirect') || '/profile/',
+      includeToken: params.get('includeToken') || false,
+      includeProfile: params.get('includeProfile') || false
+    };
 
     passport_getProfile((profile) => {
       if(profile != false)
