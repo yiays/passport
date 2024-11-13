@@ -97,6 +97,11 @@
       includeToken: params.get('includeToken') || false,
       includeProfile: params.get('includeProfile') || false
     };
+    redirectParams = {
+      url: params.get('redirect') || '/profile/',
+      includeToken: params.get('includeToken') || false,
+      includeProfile: params.get('includeProfile') || false
+    };
 
     passport_getProfile((profile) => {
       if(profile != false)
