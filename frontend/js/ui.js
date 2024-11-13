@@ -1,3 +1,17 @@
+let redirectParams = { url: null, includeToken: false, includeProfile: false };
+
+function doRedirect() {
+	let target = redirectParams.url;
+	if(redirectParams.includeProfile || redirectParams.includeToken) {
+		target += '?';
+		if(redirectParams.includeToken)
+			target += 'token=' + data.token + '&';
+		if(redirectParams.includeProfile)
+			target += 'profile=' + encodeURIComponent(JSON.stringify(data.profile));
+	}
+	window.location = target;
+}
+
 $('.tile-cover').on('click', (e) => {
 	$('.tile.active').removeClass('active');
 	$(e.target).parent().addClass('active');
@@ -29,11 +43,12 @@ $('button[data-href]').on('click', (e) => {
 $('form').on('submit', function(e) {
 	e.preventDefault();
 	const form = e.target;
+	const tileContent = form.parentElement;
 	if($(form).find('input[type=submit]').prop('disabled'))
 		return;
 	const formData = new FormData(form);
-	$(form).parent().find('.success,.error').remove();
-	$(form).parent().find('input').prop('disabled', true);
+	$(tileContent).find('.success,.error').remove();
+	$(tileContent).find('input').prop('disabled', true);
 	if(form.reportValidity()) {
 		$.ajax(form.action, {
 			method: form.method,
@@ -48,12 +63,13 @@ $('form').on('submit', function(e) {
 			success: (data) => {
 				if(data.success) {
 					const message = data.message || "Logged in successfully";
-					$(form).append(`<span class=success>${message}</span>`);
+					$(tileContent).append(`<span class=success>${message}</span>`);
 					if(data.token) {
 						passport_storeToken(data.token);
 						passport_storeProfile(data.profile);
-						if(redirect)
-							window.location = redirect;
+						if(redirectParams.url) {
+							doRedirect();
+						}
 					}else{
 						$(form).hide();
 						$(`#${form.id}-stage2`).show();
@@ -61,9 +77,9 @@ $('form').on('submit', function(e) {
 					}
 				}
 				else {
-					$(form).append(`<span class=error>${data.message}</span>`);
+					$(tileContent).append(`<span class=error>${data.message}</span>`);
 					setTimeout(() => {
-						$(form).parent().find('input').filter(':visible').prop('disabled', false);
+						$(tileContent).find('input').filter(':visible').prop('disabled', false);
 					}, 1000);
 				}
 			}
