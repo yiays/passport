@@ -88,8 +88,8 @@
 		&copy; 2024 Yiays
 	</footer>
 	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
-  <script src="/js/passport.js?v=1.8"></script>
-  <script src="/js/ui.js?v=2.1"></script>
+  <script src="/js/passport.js?v=2.0"></script>
+  <script src="/js/ui.js?v=2.2"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     redirectParams = {
@@ -105,13 +105,19 @@
 
     passport_getProfile((profile) => {
       if(profile != false)
-        doRedirect();
+        doRedirect(passport_getToken(), profile);
     });
+
+    let bcToken, bcProfile;
     if(passportBroadcast) {
       passportBroadcast.onmessage = (ev) => {
-        console.log(ev.data);
+        console.log("Logged in from another tab!");
+        if(ev.data.startsWith('token='))
+          bcToken = ev.data.slice(6);
         if(ev.data.startsWith('profile='))
-          doRedirect();
+          bcProfile = ev.data.slice(8);
+        if(bcToken && bcProfile)
+          doRedirect(bcToken, JSON.parse(bcProfile));
       }
     }
 

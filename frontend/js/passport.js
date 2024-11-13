@@ -7,7 +7,7 @@ if('BroadcastChannel' in window) {
 
   passportBroadcast.onmessage = (ev) => {
     // Log event, refresh if the login is completed. Other code may want to override this.
-    console.log(ev.data);
+    console.log("Logged in from another tab!");
     if(ev.data.startsWith('profile='))
       location.reload();
   }
@@ -40,14 +40,20 @@ function passport_clearSession() {
   }
 }
 
-function passport_getProfile(callback) {
+function passport_getToken() {
   if(!document.cookie.includes('_passportToken='))
-    return callback(false);
-  if(document.cookie.includes('_passportProfile=')) {
+    return false;
+  return document.cookie.split('; ').filter((s) => s.startsWith('_passportToken='))[0].slice(15);
+}
+
+function passport_getProfile(callback) {
+  if(!document.cookie.includes('_passportProfile=')) {
     const rawprofile = document.cookie.split('; ').filter((s) => s.startsWith('_passportProfile='))[0].slice(17);
     return callback(JSON.parse(rawprofile));
   }
-  const token = document.cookie.split('; ').filter((s) => s.startsWith('_passportToken='))[0].slice(15);
+  const token = passport_getToken();
+  if(!token)
+    return callback(false);
   $.ajax('/api/account/', {
     method: 'get',
     data: `token=${token}`,

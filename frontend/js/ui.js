@@ -1,13 +1,13 @@
 let redirectParams = { url: null, includeToken: false, includeProfile: false };
 
-function doRedirect() {
+function doRedirect(token, profile) {
 	let target = redirectParams.url;
 	if(redirectParams.includeProfile || redirectParams.includeToken) {
 		target += '?';
 		if(redirectParams.includeToken)
-			target += 'token=' + data.token + '&';
+			target += 'token=' + token + '&';
 		if(redirectParams.includeProfile)
-			target += 'profile=' + encodeURIComponent(JSON.stringify(data.profile));
+			target += 'profile=' + encodeURIComponent(JSON.stringify(profile));
 	}
 	window.location = target;
 }
@@ -68,7 +68,7 @@ $('form').on('submit', function(e) {
 						passport_storeToken(data.token);
 						passport_storeProfile(data.profile);
 						if(redirectParams.url) {
-							doRedirect();
+							doRedirect(data.token, data.profile);
 						}
 					}else{
 						$(form).hide();
