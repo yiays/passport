@@ -40,14 +40,16 @@
       </div>
       <div class="card-footer">
         <button type="button" onclick="passport_clearSession();window.location='/'">Log out</button>
+        <a href="/profile/gdpr.html">Privacy information</a>
       </div>
     </div>
   </div>
 	<footer>
+    <a href="/profile/gdpr.html">Privacy information</a> | 
 		&copy; 2024 Yiays
 	</footer>
 	<script src="https://cdn.yiays.com/jquery-3.6.0.min.js"></script>
-  <script src="/js/passport.js?v=1.8"></script>
+  <script src="/js/passport.js?v=2.1"></script>
   <script>
     passport_getProfile((profile) => {
       function callback() {

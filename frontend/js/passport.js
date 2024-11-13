@@ -47,7 +47,7 @@ function passport_getToken() {
 }
 
 function passport_getProfile(callback) {
-  if(!document.cookie.includes('_passportProfile=')) {
+  if(document.cookie.includes('_passportProfile=')) {
     const rawprofile = document.cookie.split('; ').filter((s) => s.startsWith('_passportProfile='))[0].slice(17);
     return callback(JSON.parse(rawprofile));
   }
