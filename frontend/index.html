@@ -59,9 +59,9 @@
           <a href="" data-close>← Back</a>
           <h2>Email Authentication</h2>
           <div class="radio-group">
-            <input type="radio" name="mode" id="pless-mode-login" value="login" oninput="plessLogin()" autofocus>
+            <input type="radio" name="mode" id="pless-mode-login" value="login" oninput="choosePlessLogin()" autofocus>
             <label for="pless-mode-login">Login</label>
-            <input type="radio" name="mode" id="pless-mode-register" value="register" oninput="plessRegister()">
+            <input type="radio" name="mode" id="pless-mode-register" value="register" oninput="choosePlessRegister()">
             <label for="pless-mode-register">Register</label>
           </div>
           <form action="/api/email" method="post" id="pless" style="display:none;">
@@ -93,11 +93,14 @@
   <script src="/js/ui.js?v=2.2"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
-    redirectParams = {
-      url: params.get('redirect') || '/profile/',
-      includeToken: params.get('includeToken') || false,
-      includeProfile: params.get('includeProfile') || false
-    };
+
+    if(params.get('logout') !== null) {
+      passport_clearSession();
+      params.delete('logout');
+      const newUrl = location.origin + location.pathname + (params.size? '?' + params.toString(): '');
+      window.history.replaceState({}, '', newUrl);
+    }
+
     redirectParams = {
       url: params.get('redirect') || '/profile/',
       includeToken: params.get('includeToken') || false,
@@ -122,13 +125,13 @@
       }
     }
 
-    function plessLogin() {
+    function choosePlessLogin() {
       $('#pless').show();
       $('label[for=pless-username],#pless-username').hide().prop('disabled', true);
       $('#pless-submit').attr('value', 'Login');
       $('#pless-email').focus();
     }
-    function plessRegister() {
+    function choosePlessRegister() {
       $('#pless').show();
       $('label[for=pless-username],#pless-username').show().prop('disabled', false);
       $('#pless-submit').attr('value', 'Register');
