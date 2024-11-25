@@ -75,7 +75,7 @@
           </form>
           <form action="/api/generic" method="post" id="pless-stage2" style="display:none;">
             <label for="pless-code">Verification code:</label>
-            <input id="pless-code" type="text" name="challenge" placeholder="000000" required minlength="6" maxlength="6" pattern="\d+">
+            <input id="pless-code" type="text" name="challenge" placeholder="000000" required minlength="6" maxlength="6" pattern="\d+" autocomplete="off">
             <div style="text-align: right;">
               <input id="pless-submit" type="submit"></input>
             </div>
